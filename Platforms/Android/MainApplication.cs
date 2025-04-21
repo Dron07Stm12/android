@@ -1,5 +1,8 @@
 ﻿using Android.App;
 using Android.Runtime;
+using Android.Bluetooth;
+using Android;
+
 //[assembly: UsesPermission(Android.Manifest.Permission.AccessNetworkState)]
 
 namespace DronApp1

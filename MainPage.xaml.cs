@@ -11,7 +11,7 @@ using System.Runtime.InteropServices;
 using static Microsoft.Maui.ApplicationModel.Permissions;
 using Microsoft.Maui.Controls;
 using DronApp1;
-//using Android.Bluetooth;
+
 //using Android.Bluetooth;
 //using Android;
 //using Android.Bluetooth;
@@ -21,11 +21,8 @@ namespace DronApp1
 {
     public partial class MainPage : ContentPage
     {
-     //  private BluetoothDeviceInfo device = null;
-     //   List<BluetoothDeviceInfo> DeviceList = new List<BluetoothDeviceInfo>();
 
-        //  private BluetoothDeviceInfo device;
-
+        int count = 0; // Initialize the variable before using it
         public MainPage()
         {
             InitializeComponent();
@@ -107,30 +104,6 @@ namespace DronApp1
             }
            #endif
 
-
-
-            ////////////////////////////////////////////////////////////////////////////////////////////////////////
-            ///
-            //IEnumerable<ConnectionProfile> profiles = Connectivity.Current.ConnectionProfiles;
-
-            //if (profiles.Contains(ConnectionProfile.WiFi))
-            //{
-            //    // Bluetooth connection.
-            // //   DisplayAlert("Button Clicked", "Scan_Clicked!", "OK");
-
-            //    // Active Wi-Fi connection.
-            //}
-
-            //if (profiles.Contains(ConnectionProfile.Bluetooth))
-            //{
-            //    // Bluetooth connection.
-            //    DisplayAlert("Button Clicked", "Scan_Clicked!", "OK");
-
-            //    // Active Wi-Fi connection.
-            //}
-
-
-
         }
 
 
@@ -140,7 +113,9 @@ namespace DronApp1
         {
 
 
-          #if ANDROID
+            #if ANDROID
+            
+
             var _devices = new List<string>();
             var bluetoothadapter = Android.Bluetooth.BluetoothAdapter.DefaultAdapter;
            
@@ -149,40 +124,25 @@ namespace DronApp1
             if (bluetoothadapter.IsEnabled)
             {
                 // Bluetooth is enabled
-                // Perform your Bluetooth operations here
-
+               
                 bluetoothadapter.StartDiscovery();
                 var pairedDevices = bluetoothadapter.BondedDevices;
                 if (pairedDevices != null)
                 {
                     DisplayAlert(bluetoothadapter.Name, "Connect", "OK");
-                    // Loop through paired devices
-                    //foreach (var device in pairedDevices)
-                    //{
-                    //    // Display the name and address of each paired device
-                    //    Console.WriteLine($"Device: {device.Name}, Address: {device.Address}");
-                    //}
-                }
-               // DisplayAlert("Button Clicked", "Bluetooth is enable!", "OK");
+                   
+                }             
                 foreach (var dev in pairedDevices)
                 {
-
-                   
+                 
                     if (dev.Name.Contains("HC-06"))
                     {
                         _devices.Add(dev.Name + " - " + dev.Address);
                         
                     }
                 }
-               
 
-                // BluetoothDevice device = bluetoothadapter.GetRemoteDevice(deviceAddress);
-                //BluetoothSocket socket = device.CreateRfcommSocketToServiceRecord(Java.Util.UUID.FromString("00001101-0000-1000-8000-00805F9B34FB"));
-
-                //_adapter.CancelDiscovery();
-                //socket.Connect();
-
-
+                             
             }
             else
             {
@@ -190,20 +150,80 @@ namespace DronApp1
                 // Prompt the user to enable Bluetooth or handle accordingly
                 DisplayAlert("Button Clicked", "Bluetooth is disabled!", "OK");
             }
-            // BluetoothDevice device = bluetoothadapter.GetRemoteDevice("98:D3:34:90:DC:F2"); 
-
+           
             Android.Bluetooth.BluetoothDevice device = bluetoothadapter.GetRemoteDevice("98:D3:34:90:DC:F2");
             Android.Bluetooth.BluetoothSocket socket = device.CreateRfcommSocketToServiceRecord(Java.Util.UUID.FromString("00001101-0000-1000-8000-00805F9B34FB"));
             bluetoothadapter.CancelDiscovery();
             socket.Connect();   
 
+            #endif
+
+        }
+
+
+        private async void Send_Data(object sender, EventArgs e)
+        {
+            string receivedData = "h";
+#if ANDROID
+           Stream? _inputStream = null; // Initialize the variable to avoid CS0165  
+           byte[] buffer = new byte[1024];  
+           var bluetoothadapter = Android.Bluetooth.BluetoothAdapter.DefaultAdapter;  
+
+           if (bluetoothadapter == null)  
+           {  
+               await DisplayAlert("Error", "Bluetooth adapter is not available.", "OK");  
+               return;  
+           }  
+
+           Android.Bluetooth.BluetoothDevice? device = bluetoothadapter.GetRemoteDevice("98:D3:34:90:DC:F2");  
+
+           if (device == null)  
+           {  
+               await DisplayAlert("Error", "Bluetooth device not found.", "OK");  
+               return;  
+           }  
+
+           Android.Bluetooth.BluetoothSocket? socket = device.CreateRfcommSocketToServiceRecord(Java.Util.UUID.FromString("00001101-0000-1000-8000-00805F9B34FB"));  
+
+           if (socket == null)  
+           {  
+               await DisplayAlert("Error", "Failed to create Bluetooth socket.", "OK");  
+               return;  
+           }  
+
+           bluetoothadapter.CancelDiscovery();  
+
+           try  
+           {  
+               await socket.ConnectAsync();
+                _inputStream = socket.InputStream;
+                // Use the input stream to read data from the Bluetooth device
+                // For example, you can read data like this:
+                while (true)
+                {
+                  await Task.Delay(1000);
+                 int bytesRead = await _inputStream.ReadAsync(buffer, 0, buffer.Length);
+                  receivedData = System.Text.Encoding.ASCII.GetString(buffer, 0, bytesRead);
+                    // Process the received data as needed
+                    
+                    Counter.Text = $"{receivedData}";
+            
+                    SemanticScreenReader.Announce(Counter.Text);
+                
+                }   
+                
+
+           }  
+           catch (Exception ex)  
+           {  
+               await DisplayAlert("Error", $"Failed to connect: {ex.Message}", "OK");  
+               return;  
+           }  
 #endif
 
 
-
-
-
         }
+
 
 
     }
@@ -370,4 +390,55 @@ namespace DronApp1
 //else
 //{
 //    DisplayAlert("Button Clicked", "no_Bluetooth is connected!", "OK");
+//}
+
+
+//////получение данных по блютуз HC-06
+//client.Connect(device.DeviceAddress, BluetoothService.SerialPort);
+////Start a new Thread after connection:
+//Thread tr = new(ReceiveData);
+//tr.IsBackground = true;
+//tr.Start();
+
+//private void ReceiveData()
+//{
+//    var stream = client.GetStream();
+//    byte[] receive = new byte[1024];
+
+//    while (true)
+//    {
+//        Array.Clear(receive, 0, receive.Length);
+//        var readMessage = "";
+//        do
+//        {
+//            Thread.Sleep(1000);
+//            stream.Read(receive, 0, receive.Length);
+//            readMessage += Encoding.ASCII.GetString(receive);
+//        }
+//        while (stream.DataAvailable);
+//    }
+//}
+
+
+
+/////////////////////////////////////////
+
+////////////////////////////////////////////////////////////////////////////////////////////////////////
+///
+//IEnumerable<ConnectionProfile> profiles = Connectivity.Current.ConnectionProfiles;
+
+//if (profiles.Contains(ConnectionProfile.WiFi))
+//{
+//    // Bluetooth connection.
+// //   DisplayAlert("Button Clicked", "Scan_Clicked!", "OK");
+
+//    // Active Wi-Fi connection.
+//}
+
+//if (profiles.Contains(ConnectionProfile.Bluetooth))
+//{
+//    // Bluetooth connection.
+//    DisplayAlert("Button Clicked", "Scan_Clicked!", "OK");
+
+//    // Active Wi-Fi connection.
 //}

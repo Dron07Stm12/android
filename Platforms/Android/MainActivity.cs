@@ -96,11 +96,56 @@ namespace DronApp1
 
 
 
+    public class BluetoothHC06Reader
+    {
+        private BluetoothAdapter _adapter;
+        private BluetoothSocket _socket;
+        private Stream _inputStream;
 
-   
- 
+        public BluetoothHC06Reader()
+        {
+            _adapter = BluetoothAdapter.DefaultAdapter;
+        }
 
-    
+        public async Task ConnectToHC06(string deviceAddress)
+        {
+            try
+            {
+                BluetoothDevice device = _adapter.GetRemoteDevice(deviceAddress);
+                _socket = device.CreateRfcommSocketToServiceRecord(Java.Util.UUID.FromString("00001101-0000-1000-8000-00805F9B34FB"));
+
+                _adapter.CancelDiscovery();
+                await _socket.ConnectAsync();
+
+                _inputStream = _socket.InputStream;
+                Console.WriteLine("Подключено к HC-06");
+            }
+            catch (Exception ex)
+            {
+                Console.WriteLine($"Ошибка подключения: {ex.Message}");
+            }
+        }
+
+        public async Task<string> ReadDataAsync()
+        {
+            try
+            {
+                byte[] buffer = new byte[1024];
+                int bytesRead = await _inputStream.ReadAsync(buffer, 0, buffer.Length);
+                return System.Text.Encoding.ASCII.GetString(buffer, 0, bytesRead);
+            }
+            catch (Exception ex)
+            {
+                Console.WriteLine($"Ошибка чтения данных: {ex.Message}");
+                return null;
+            }
+        }
+    }
+
+
+
+
+
 
 
 

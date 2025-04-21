@@ -15,27 +15,41 @@
 
         <!--<Entry Placeholder="Enter name" TextColor="DarkRed" />-->
         <!--<Editor Placeholder="Enter name" AutoSize="TextChanges"/>-->
+        <Label x:Name="label" Text="ON_OFF to Bluetooth" 
+            FontSize="22" 
+            HorizontalOptions="Center" 
+       
+            TextColor="Black"
+            Padding="20"
+       />
 
-        <Button Text="Click me" TextColor="Red" Clicked="Button_Clicked" />
-        <Label x:Name="label" Text="Welcome to Bluetooth" 
-               FontSize="22" 
-               HorizontalOptions="Center" 
-               
-               TextColor="Black"
-               Padding="20"
-               />
 
-        <Button Text="Click me" TextColor="Red" Clicked="Scan_Clicked"/>
+        <Button Text="Click me" TextColor="Red" BackgroundColor="Blue"  Clicked="Button_Clicked" />
+        
+
+        <!--<Button Text="Click me" TextColor="Red" Clicked="Scan_Clicked"/>-->
 
         <Label x:Name="label2" Text="Connect to Bluetooth" 
                FontSize="22" 
-               HorizontalOptions="Center" 
-               
+               HorizontalOptions="Center"       
                TextColor="Black"
                Padding="20"
+             
                />
 
-        <Button Text="Click me" TextColor="Red" Clicked="Connect_Bluetooth"/> 
+        <Button Text="Click me" TextColor="Red" BackgroundColor="Green"  Clicked="Connect_Bluetooth"/>
+
+
+
+        <Label x:Name="label3" Text="data of hc-06" 
+               FontSize="22" 
+               HorizontalOptions="Center"       
+               TextColor="Black"
+               Padding="20"
+             
+               />
+
+        <Button x:Name="Counter" TextColor="Red" BackgroundColor="Green"  Clicked="Send_Data"/>  
 
     </StackLayout>
 
