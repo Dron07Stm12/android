@@ -7,6 +7,7 @@ using Android.Bluetooth;
 using Android.Content;
 using System.Collections.Generic;
 using static Microsoft.Maui.ApplicationModel.Permissions;
+using InTheHand.Net.Sockets;
 
 namespace DronApp1
 {
@@ -73,9 +74,9 @@ namespace DronApp1
             //    Intent intent = new Intent(BluetoothAdapter.ActionRequestEnable);
             //    StartActivity(intent);
             //    IntentFilter filter = new IntentFilter(BluetoothAdapter.ActionStateChanged); 
-                
+
             //}
-              
+
 
 
             //BluetoothScanner bluetoothScanner = new BluetoothScanner();
@@ -102,6 +103,9 @@ namespace DronApp1
         private BluetoothSocket _socket;
         private Stream _inputStream;
 
+        BluetoothClient client = new BluetoothClient();
+        BluetoothDevice bluetoothDevice = null;
+        BluetoothManager bluetoothManager = null;
         public BluetoothHC06Reader()
         {
             _adapter = BluetoothAdapter.DefaultAdapter;
@@ -130,6 +134,7 @@ namespace DronApp1
         {
             try
             {
+              
                 byte[] buffer = new byte[1024];
                 int bytesRead = await _inputStream.ReadAsync(buffer, 0, buffer.Length);
                 return System.Text.Encoding.ASCII.GetString(buffer, 0, bytesRead);

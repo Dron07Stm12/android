@@ -3,14 +3,14 @@
              xmlns:x="http://schemas.microsoft.com/winfx/2009/xaml"
              x:Class="DronApp1.MainPage">
 
-       <StackLayout Orientation="Vertical" Padding="40">
+       <StackLayout Orientation="Vertical" Padding="10">
 
 
         <Label  Text="Hello SCB_electronmash!!"
                 FontSize="24" 
                 TextColor="Green"
                 HorizontalOptions="Center"
-                Padding="20"
+                Padding="0"
                 />
 
         <!--<Entry Placeholder="Enter name" TextColor="DarkRed" />-->
@@ -20,7 +20,7 @@
             HorizontalOptions="Center" 
        
             TextColor="Black"
-            Padding="20"
+            Padding="10"
        />
 
 
@@ -29,7 +29,7 @@
 
         <!--<Button Text="Click me" TextColor="Red" Clicked="Scan_Clicked"/>-->
 
-        <Label x:Name="label2" Text="Connect to Bluetooth" 
+        <!--<Label x:Name="label2" Text="Connect to Bluetooth" 
                FontSize="22" 
                HorizontalOptions="Center"       
                TextColor="Black"
@@ -37,7 +37,7 @@
              
                />
 
-        <Button Text="Click me" TextColor="Red" BackgroundColor="Green"  Clicked="Connect_Bluetooth"/>
+        <Button Text="Click me" TextColor="Red" BackgroundColor="Green"  Clicked="Connect_Bluetooth"/>-->
 
 
 
@@ -47,10 +47,22 @@
                TextColor="Black"
                Padding="20"
              
-               />
+         />
 
-        <Button x:Name="Counter" TextColor="Red" BackgroundColor="Green"  Clicked="Send_Data"/>  
+        <Button  Text="Click me"  x:Name="Counter" TextColor="Red" BackgroundColor="Green"  Clicked="Send_Data"/>
 
+            <Label x:Name="label4" Text="Empty"
+                   FontSize="14" 
+                   HorizontalOptions="Fill"
+                     VerticalOptions="Fill"
+                   LineBreakMode="WordWrap"   
+                   TextColor="Black"
+                  Padding="20"
+             
+             />
+           
+           <Button Text="Click me"  x:Name="Counter2" TextColor="Red" BackgroundColor="Green"  Clicked="Send_Data2"/>
+        
     </StackLayout>
 
 

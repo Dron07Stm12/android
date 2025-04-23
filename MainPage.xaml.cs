@@ -21,7 +21,7 @@ namespace DronApp1
 {
     public partial class MainPage : ContentPage
     {
-
+        string receivedData2 = "h";
         int count = 0; // Initialize the variable before using it
         public MainPage()
         {
@@ -32,7 +32,11 @@ namespace DronApp1
 
         private void Button_Clicked(object sender, EventArgs e)
         {
-          #if ANDROID
+
+
+
+
+#if ANDROID
                 var bluetoothManager = Android.App.Application.Context.GetSystemService(Android.Content.Context.BluetoothService) as Android.Bluetooth.BluetoothManager;
 
                 if (bluetoothManager != null)
@@ -54,7 +58,10 @@ namespace DronApp1
                             else
                             {
                                 // Disable Bluetooth for older Android versions
+                                DisplayAlert(bluetoothAdapter.Name, " No_Connect", "OK");
                                 bluetoothAdapter.Disable(); // This is still valid for Android < 33
+                                 
+
                             }
                         }
                         else
@@ -70,19 +77,20 @@ namespace DronApp1
                             else
                             {
                                 // Enable Bluetooth for older Android versions
+                                DisplayAlert(bluetoothAdapter.Name, "Connect", "OK");   
                                 bluetoothAdapter.Enable();
                             }
                         }
                     }
                 }
-            #endif
+#endif
         }
 
         private void Scan_Clicked(object sender, EventArgs e)
         {
 
 
-          #if ANDROID
+#if ANDROID
             var enable = new Android.Content.Intent(Android.Bluetooth.BluetoothAdapter.ActionRequestEnable);
             enable.SetFlags(Android.Content.ActivityFlags.NewTask);
 
@@ -102,7 +110,7 @@ namespace DronApp1
                 // Enable the Bluetooth
                 Android.App.Application.Context.StartActivity(enable);
             }
-           #endif
+         #endif
 
         }
 
@@ -165,15 +173,23 @@ namespace DronApp1
         {
             string receivedData = "h";
 #if ANDROID
-           Stream? _inputStream = null; // Initialize the variable to avoid CS0165  
-           byte[] buffer = new byte[1024];  
-           var bluetoothadapter = Android.Bluetooth.BluetoothAdapter.DefaultAdapter;  
 
+           Stream? _inputStream = null; // Initialize the variable to avoid CS0165  
+           byte[] buffer = new byte[2048];  
+           var bluetoothadapter = Android.Bluetooth.BluetoothAdapter.DefaultAdapter;  
+          
+        
            if (bluetoothadapter == null)  
            {  
-               await DisplayAlert("Error", "Bluetooth adapter is not available.", "OK");  
+               await DisplayAlert("Error", "Bluetooth adapter is not available.", "OK"); 
+              
                return;  
            }  
+           //else   
+           //{  
+           //    await DisplayAlert("Bluetooth is enabled",bluetoothadapter.Name , "OK");  
+              
+           //}    
 
            Android.Bluetooth.BluetoothDevice? device = bluetoothadapter.GetRemoteDevice("98:D3:34:90:DC:F2");  
 
@@ -182,7 +198,7 @@ namespace DronApp1
                await DisplayAlert("Error", "Bluetooth device not found.", "OK");  
                return;  
            }  
-
+           
            Android.Bluetooth.BluetoothSocket? socket = device.CreateRfcommSocketToServiceRecord(Java.Util.UUID.FromString("00001101-0000-1000-8000-00805F9B34FB"));  
 
            if (socket == null)  
@@ -191,25 +207,34 @@ namespace DronApp1
                return;  
            }  
 
-           bluetoothadapter.CancelDiscovery();  
-
+           bluetoothadapter.CancelDiscovery();  // Отменить текущий процесс обнаружения устройства.
+            await DisplayAlert(device.Name, "Bluetooth device", "OK");// имя устройства Bluetooth
            try  
            {  
-               await socket.ConnectAsync();
+                 await socket.ConnectAsync();
                 _inputStream = socket.InputStream;
                 // Use the input stream to read data from the Bluetooth device
                 // For example, you can read data like this:
                 while (true)
                 {
-                  await Task.Delay(1000);
-                 int bytesRead = await _inputStream.ReadAsync(buffer, 0, buffer.Length);
+                  await Task.Delay(200);
+                  int bytesRead = await _inputStream.ReadAsync(buffer, 0, buffer.Length);
                   receivedData = System.Text.Encoding.ASCII.GetString(buffer, 0, bytesRead);
-                    // Process the received data as needed
-                    
-                    Counter.Text = $"{receivedData}";
-            
-                    SemanticScreenReader.Announce(Counter.Text);
                 
+                   // Process the received data as needed
+                    
+                //    Counter.Text = $"{receivedData}";                  
+                //    SemanticScreenReader.Announce(Counter.Text);
+                     if (receivedData != null)  
+                     {
+                      label4.Text = $"data hc-06:{Environment.NewLine}";
+                      SemanticScreenReader.Announce(label4.Text);
+                      label4.Text = $"data hc-06:{Environment.NewLine}{receivedData}";
+                       SemanticScreenReader.Announce(label4.Text);
+                       receivedData = null;
+                     }
+                    
+                    
                 }   
                 
 
@@ -226,8 +251,115 @@ namespace DronApp1
 
 
 
+        private async void Send_Data2(object sender, EventArgs e)
+        {
+            string data = "1";
+
+#if ANDROID
+
+           Stream? _outStream = null; // Initialize the variable to avoid CS0165  
+           byte[] buffer = new byte[2048];  
+           var bluetoothadapter = Android.Bluetooth.BluetoothAdapter.DefaultAdapter;  
+          
+        
+           if (bluetoothadapter == null)  
+           {  
+               await DisplayAlert("Error", "Bluetooth adapter is not available.", "OK"); 
+              
+               return;  
+           }  
+          
+
+           Android.Bluetooth.BluetoothDevice? device = bluetoothadapter.GetRemoteDevice("98:D3:34:90:DC:F2");  
+
+           if (device == null)  
+           {  
+               await DisplayAlert("Error", "Bluetooth device not found.", "OK");  
+               return;  
+           }  
+           
+           Android.Bluetooth.BluetoothSocket? socket = device.CreateRfcommSocketToServiceRecord(Java.Util.UUID.FromString("00001101-0000-1000-8000-00805F9B34FB"));  
+
+           if (socket == null)  
+           {  
+               await DisplayAlert("Error", "Failed to create Bluetooth socket.", "OK");  
+               return;  
+           }  
+
+           bluetoothadapter.CancelDiscovery();  // Отменить текущий процесс обнаружения устройства.
+
+           await DisplayAlert(device.Name, "Bluetooth device", "OK");// имя устройства Bluetooth
+           try  
+           {  
+               await socket.ConnectAsync();
+             
+                _outStream = socket.OutputStream;
+                //  while(true){}
+                // Use the input stream to read data from the Bluetooth device
+                // For example, you can read data like this:
+                while (true)
+                {
+                  await Task.Delay(200);
+             //     int bytesRead = await _inputStream.ReadAsync(buffer, 0, buffer.Length);
+              //    data = System.Text.Encoding.ASCII.GetString(buffer, 0, bytesRead);
+                  //////////////////////////////////////////
+           
+                    buffer = System.Text.Encoding.ASCII.GetBytes("Hello HC-06!");
+                    await _outStream.WriteAsync(buffer, 0, buffer.Length);
+
+                  /////////////////////////////////////////////
+                   // Process the received data as needed
+                    
+                ////    Counter.Text = $"{receivedData}";                  
+                ////    SemanticScreenReader.Announce(Counter.Text);
+                //     if (data != null)  
+                //     {
+                //      label4.Text = $"data hc-06:{Environment.NewLine}";
+                //      SemanticScreenReader.Announce(label4.Text);
+                //      label4.Text = $"data hc-06:{Environment.NewLine}{data}";
+                //       SemanticScreenReader.Announce(label4.Text);
+                //       data = null;
+                //     }
+                    
+                    
+                }   
+                
+
+           }  
+           catch (Exception ex)  
+           {  
+               await DisplayAlert("Error", $"Failed to connect: {ex.Message}", "OK");  
+               return;  
+           }  
+#endif
+
+
+
+
+
+            //#if ANDROID
+            //                    Stream? _outputStream = null;
+            //                    byte[] buffer = System.Text.Encoding.ASCII.GetBytes(data);
+            //                    await _outputStream.WriteAsync(buffer, 0, buffer.Length);
+
+            //#endif
+
+        }
+
+
+
     }
 }
+
+
+
+
+
+
+
+
+
+
 
 /////////////////////////////////////////////////////////////////////////////////
 //BluetoothClient client = new BluetoothClient();
