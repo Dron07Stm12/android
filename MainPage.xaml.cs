@@ -21,7 +21,18 @@ namespace DronApp1
 {
     public partial class MainPage : ContentPage
     {
-        string receivedData2 = "h";
+
+       public string data_MAC = null;
+
+
+#if ANDROID
+            Android.Bluetooth.BluetoothSocket? socket_global;
+
+#endif
+
+
+
+        public  string receivedData2 = null;
         int count = 0; // Initialize the variable before using it
         public MainPage()
         {
@@ -110,7 +121,7 @@ namespace DronApp1
                 // Enable the Bluetooth
                 Android.App.Application.Context.StartActivity(enable);
             }
-         #endif
+#endif
 
         }
 
@@ -121,7 +132,7 @@ namespace DronApp1
         {
 
 
-            #if ANDROID
+#if ANDROID
             
 
             var _devices = new List<string>();
@@ -164,7 +175,7 @@ namespace DronApp1
             bluetoothadapter.CancelDiscovery();
             socket.Connect();   
 
-            #endif
+#endif
 
         }
 
@@ -304,7 +315,7 @@ namespace DronApp1
               //    data = System.Text.Encoding.ASCII.GetString(buffer, 0, bytesRead);
                   //////////////////////////////////////////
            
-                    buffer = System.Text.Encoding.ASCII.GetBytes("Hello HC-06!");
+                    buffer = System.Text.Encoding.ASCII.GetBytes("g");
                     await _outStream.WriteAsync(buffer, 0, buffer.Length);
 
                   /////////////////////////////////////////////
@@ -344,6 +355,101 @@ namespace DronApp1
 
             //#endif
 
+        }
+
+
+
+        private async void Send_Data3(object sender, EventArgs e)//Bluetooth connect
+        {
+
+           #if ANDROID
+
+            
+           
+           
+           var bluetoothadapter = Android.Bluetooth.BluetoothAdapter.DefaultAdapter;
+         
+           if (bluetoothadapter == null)
+           {
+               await DisplayAlert("Error", "Bluetooth adapter is not available.", "OK");
+               return;
+           } 
+         
+            bluetoothadapter.StartDiscovery();// Запуск процесса обнаружения удаленного устройства(сканирование)
+            
+            var pairedDevices = bluetoothadapter.BondedDevices;// Возвращает набор объектов BluetoothDevice, которые связаны (спарены) с локальным адаптером.
+            
+            foreach (var dev in pairedDevices)
+            {
+                if (dev.Name.Contains("HC-06"))
+                {
+                     DisplayAlert("Button Clicked", dev.Name, "OK");
+                     //  _devices.Add(dev.Name + " - " + dev.Address);
+                       await Task.Delay(1500);
+                      DisplayAlert("Button Clicked", dev.Address, "OK");
+                      data_MAC = dev.Address;// MAC-адрес устройства
+                      break;
+                }
+            }  
+           // Получить объект BluetoothDevice для указанного MAC-адрес устройства
+             Android.Bluetooth.BluetoothDevice? device = bluetoothadapter.GetRemoteDevice(data_MAC); 
+             if (device == null)// проверка на null
+             {
+                 await DisplayAlert("Error", "Bluetooth device not found.", "OK");
+                 return;
+             }
+
+            // Метод CreateRfcommSocketToServiceRecord(UUID? uuid) в Android используется для создания RFCOMM BluetoothSocket,
+            //который позволяет установить безопасное исходящее соединение с удаленным устройством Bluetooth. 
+            //Этот метод выполняет поиск канала связи через Service Discovery Protocol (SDP), используя предоставленный UUID.
+             Android.Bluetooth.BluetoothSocket? socket = device.CreateRfcommSocketToServiceRecord(Java.Util.UUID.FromString("00001101-0000-1000-8000-00805F9B34FB"));
+             socket_global = socket; // передаем ссылку на сокет в глобальную переменную
+            if (socket == null)// проверка на null
+             {
+                 await DisplayAlert("Error", "Failed to create Bluetooth socket.", "OK");
+                 return;
+             }
+             bluetoothadapter.CancelDiscovery();  // Отменить текущий процесс обнаружения устройства.
+             await socket.ConnectAsync();
+             await Task.Delay(1500);
+             await DisplayAlert(device.Name, "Bluetooth device", "OK");// имя устройства Bluetooth
+
+          #endif
+
+        }
+
+
+        public async void ReceiverData(object sender, EventArgs e)//Bluetooth connect
+        {
+            Stream? _outputStream = null;
+            Stream? _inputStream = null; // Initialize the variable to avoid CS0165
+            byte[] buffer = new byte[2048];
+          #if ANDROID
+
+            try
+            {
+                _inputStream = socket_global.InputStream;
+                // Use the input stream to read data from the Bluetooth device
+                // For example, you can read data like this:
+                while (true)
+                {
+                    await Task.Delay(200);
+                   
+                    int bytesRead = await _inputStream.ReadAsync(buffer, 0, buffer.Length);
+                    receivedData2 = System.Text.Encoding.ASCII.GetString(buffer, 0, bytesRead);
+                    label4.Text = $"data hc-06:{Environment.NewLine}{receivedData2}";
+                    SemanticScreenReader.Announce(label4.Text);
+                    receivedData2 = null;
+                }
+            }
+            catch (Exception ex)
+            {
+                await DisplayAlert("Error", $"Failed to connect: {ex.Message}", "OK");
+                return;
+            }
+
+          #endif
+          
         }
 
 

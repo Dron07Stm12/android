@@ -3,7 +3,7 @@
              xmlns:x="http://schemas.microsoft.com/winfx/2009/xaml"
              x:Class="DronApp1.MainPage">
 
-       <StackLayout Orientation="Vertical" Padding="10">
+       <StackLayout Orientation="Vertical" Padding="5">
 
 
         <Label  Text="Hello SCB_electronmash!!"
@@ -60,9 +60,14 @@
                   Padding="20"
              
              />
-           
-           <Button Text="Click me"  x:Name="Counter2" TextColor="Red" BackgroundColor="Green"  Clicked="Send_Data2"/>
-        
+
+        <Button   Text="Click me"  x:Name="Counter2" TextColor="Red" BackgroundColor="Coral"  Clicked="Send_Data2"/>
+
+
+        <Button Margin="5"  Text="Click me"  x:Name="Counter3" TextColor="Red" BackgroundColor="Gold"  Clicked="Send_Data3"/>
+
+        <Button Margin="5" Text="Click me"  x:Name="Counter4" TextColor="Red" BackgroundColor="#1B1919"  Clicked="ReceiverData"/>   
+
     </StackLayout>
 
 
