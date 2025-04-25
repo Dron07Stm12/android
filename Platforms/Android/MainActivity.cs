@@ -71,15 +71,30 @@ namespace DronApp1
             }
 
 
-            if (Android.OS.Build.VERSION.SdkInt >= Android.OS.BuildVersionCodes.S)
+            //if (Android.OS.Build.VERSION.SdkInt >= Android.OS.BuildVersionCodes.S)
+            //{
+            //    if (ContextCompat.CheckSelfPermission(Platform.CurrentActivity, Manifest.Permission.BluetoothScan) != Android.Content.PM.Permission.Granted ||
+            //        ContextCompat.CheckSelfPermission(Platform.CurrentActivity, Manifest.Permission.BluetoothConnect) != Android.Content.PM.Permission.Granted)
+            //    {
+            //        ActivityCompat.RequestPermissions(Platform.CurrentActivity, new string[]
+            //        {
+            //    Manifest.Permission.BluetoothScan,
+            //    Manifest.Permission.BluetoothConnect
+            //        }, 1);
+            //    }
+            //}
+
+            // Existing code...  
+
+            if (Build.VERSION.SdkInt >= BuildVersionCodes.S) // Android 31 (API level 31) and later  
             {
-                if (ContextCompat.CheckSelfPermission(Platform.CurrentActivity, Manifest.Permission.BluetoothScan) != Android.Content.PM.Permission.Granted ||
-                    ContextCompat.CheckSelfPermission(Platform.CurrentActivity, Manifest.Permission.BluetoothConnect) != Android.Content.PM.Permission.Granted)
+                if (ContextCompat.CheckSelfPermission(Platform.CurrentActivity!, Manifest.Permission.BluetoothScan) != Android.Content.PM.Permission.Granted ||
+                    ContextCompat.CheckSelfPermission(Platform.CurrentActivity!, Manifest.Permission.BluetoothConnect) != Android.Content.PM.Permission.Granted)
                 {
-                    ActivityCompat.RequestPermissions(Platform.CurrentActivity, new string[]
+                    ActivityCompat.RequestPermissions(Platform.CurrentActivity!, new string[]
                     {
-                Manifest.Permission.BluetoothScan,
-                Manifest.Permission.BluetoothConnect
+                       Manifest.Permission.BluetoothScan,
+                       Manifest.Permission.BluetoothConnect
                     }, 1);
                 }
             }

@@ -3,28 +3,29 @@
              xmlns:x="http://schemas.microsoft.com/winfx/2009/xaml"
              x:Class="DronApp1.MainPage">
 
-       <StackLayout Orientation="Vertical" Padding="5">
+       <StackLayout Orientation="Vertical" Padding="5" BackgroundColor="Khaki" >
 
 
-        <Label  Text="Hello SCB_electronmash!!"
+        <Label  Text="Hello from SCB_ELECTRONMASH"
                 FontSize="24" 
-                TextColor="Green"
+                TextColor="DarkBlue"
                 HorizontalOptions="Center"
                 Padding="0"
                 />
 
         <!--<Entry Placeholder="Enter name" TextColor="DarkRed" />-->
         <!--<Editor Placeholder="Enter name" AutoSize="TextChanges"/>-->
-        <Label x:Name="label" Text="ON_OFF to Bluetooth" 
+        <!--<Label x:Name="label" Text="ON_OFF to Bluetooth" 
             FontSize="22" 
             HorizontalOptions="Center" 
        
             TextColor="Black"
             Padding="10"
-       />
+       />-->
 
+        <Button Margin="15" Text="ON_OFF to Bluetooth"  x:Name="Counter5" TextColor="Red" BackgroundColor="Blue"  Clicked="On_Off_Bluetooth"/>
 
-        <Button Text="Click me" TextColor="Red" BackgroundColor="Blue"  Clicked="Button_Clicked" />
+        
         
 
         <!--<Button Text="Click me" TextColor="Red" Clicked="Scan_Clicked"/>-->
@@ -41,17 +42,21 @@
 
 
 
-        <Label x:Name="label3" Text="data of hc-06" 
+        <!--<Label x:Name="label3" Text="data of hc-06" 
                FontSize="22" 
                HorizontalOptions="Center"       
                TextColor="Black"
                Padding="20"
              
-         />
+         />-->
 
-        <Button  Text="Click me"  x:Name="Counter" TextColor="Red" BackgroundColor="Green"  Clicked="Send_Data"/>
+        <!--<Button  Text="Click me"  x:Name="Counter" TextColor="Red" BackgroundColor="Green"  Clicked="Send_Data"/>-->
+        <Button Margin="15"  Text="Scan of connect bluetooth"  x:Name="Counter3" TextColor="Red" BackgroundColor="#084706"  Clicked="Send_Data3"/>
 
-            <Label x:Name="label4" Text="Empty"
+        <Button Margin="15" Text="ReceiverData"  x:Name="Counter4" TextColor="Red" BackgroundColor="#1B1919"  Clicked="ReceiverData"/>
+           
+           
+        <Label x:Name="label4" Text="Empty string of receiverdata"
                    FontSize="14" 
                    HorizontalOptions="Fill"
                      VerticalOptions="Fill"
@@ -61,13 +66,12 @@
              
              />
 
-        <Button   Text="Click me"  x:Name="Counter2" TextColor="Red" BackgroundColor="Coral"  Clicked="Send_Data2"/>
+        <!--<Button   Text="Click me"  x:Name="Counter2" TextColor="Red" BackgroundColor="Coral"  Clicked="Send_Data2"/>-->
 
 
-        <Button Margin="5"  Text="Click me"  x:Name="Counter3" TextColor="Red" BackgroundColor="Gold"  Clicked="Send_Data3"/>
+        
 
-        <Button Margin="5" Text="Click me"  x:Name="Counter4" TextColor="Red" BackgroundColor="#1B1919"  Clicked="ReceiverData"/>   
-
+        <!--<Button Text="Click me" TextColor="Red" BackgroundColor="Blue"  Clicked="Button_Clicked" />-->
     </StackLayout>
 
 

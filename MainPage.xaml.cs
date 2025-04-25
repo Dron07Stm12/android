@@ -453,9 +453,71 @@ namespace DronApp1
         }
 
 
+        public async void On_Off_Bluetooth(object sender, EventArgs e)//Bluetooth connect
+        {
+#if ANDROID
+    var bluetoothManager = Android.App.Application.Context.GetSystemService(Android.Content.Context.BluetoothService) as Android.Bluetooth.BluetoothManager;
 
+    if (bluetoothManager != null)
+    {
+        var bluetoothAdapter = bluetoothManager.Adapter;
+
+        if (bluetoothAdapter != null)
+        {
+            if (bluetoothAdapter.IsEnabled)
+            {
+                // Use the newer API for Android 33 and later
+                if (Android.OS.Build.VERSION.SdkInt >= Android.OS.BuildVersionCodes.Tiramisu)
+                {
+                    // Redirect user to Bluetooth settings to disable Bluetooth
+                    var intent = new Android.Content.Intent(Android.Provider.Settings.ActionBluetoothSettings);
+                    intent.AddFlags(Android.Content.ActivityFlags.NewTask);
+                    Android.App.Application.Context.StartActivity(intent);
+                }
+                else
+                {
+                    // Disable Bluetooth for older Android versions
+                    DisplayAlert(bluetoothAdapter.Name, " No_Connect", "OK");
+                    // Use reflection to call the Disable method for Android < 33
+                    try
+                    {
+                        var disableMethod = bluetoothAdapter.Class.GetMethod("disable");
+                        disableMethod.Invoke(bluetoothAdapter);
+                    }
+                    catch (Exception ex)
+                    {
+                        DisplayAlert("Error", $"Failed to disable Bluetooth: {ex.Message}", "OK");
+                    }
+                }
+            }
+            else
+            {
+                // Use the newer API for Android 33 and later
+                if (Android.OS.Build.VERSION.SdkInt >= Android.OS.BuildVersionCodes.Tiramisu)
+                {
+                    // Redirect user to Bluetooth settings to enable Bluetooth
+                    var intent = new Android.Content.Intent(Android.Provider.Settings.ActionBluetoothSettings);
+                    intent.AddFlags(Android.Content.ActivityFlags.NewTask);
+                    Android.App.Application.Context.StartActivity(intent);
+                }
+                else
+                {
+                    // Enable Bluetooth for older Android versions
+                    DisplayAlert(bluetoothAdapter.Name, "Connect", "OK");
+                    bluetoothAdapter.Enable();
+                }
+            }
+        }
     }
-}
+#endif
+
+
+        }
+
+
+
+
+    }   }
 
 
 
@@ -680,3 +742,65 @@ namespace DronApp1
 
 //    // Active Wi-Fi connection.
 //}
+
+
+///////////////////////////////////////////////////////
+//#if ANDROID
+//    var bluetoothManager = Android.App.Application.Context.GetSystemService(Android.Content.Context.BluetoothService) as Android.Bluetooth.BluetoothManager;
+
+//    if (bluetoothManager != null)
+//    {
+//        var bluetoothAdapter = bluetoothManager.Adapter;
+
+//        if (bluetoothAdapter != null)
+//        {
+//            if (bluetoothAdapter.IsEnabled)
+//            {
+//                // Use the newer API for Android 33 and later
+//                if (Android.OS.Build.VERSION.SdkInt >= Android.OS.BuildVersionCodes.Tiramisu)
+//                {
+//                    // Redirect user to Bluetooth settings to disable Bluetooth
+//                    var intent = new Android.Content.Intent(Android.Provider.Settings.ActionBluetoothSettings);
+//                    intent.AddFlags(Android.Content.ActivityFlags.NewTask);
+//                    Android.App.Application.Context.StartActivity(intent);
+//                }
+//                else
+//                {
+//                    // Disable Bluetooth for older Android versions
+//                    DisplayAlert(bluetoothAdapter.Name, " No_Connect", "OK");
+//                    // Use reflection to call the Disable method for Android < 33
+//                    try
+//                    {
+//                        var disableMethod = bluetoothAdapter.Class.GetMethod("disable");
+//                        disableMethod.Invoke(bluetoothAdapter);
+//                    }
+//                    catch (Exception ex)
+//                    {
+//                        DisplayAlert("Error", $"Failed to disable Bluetooth: {ex.Message}", "OK");
+//                    }
+//                }
+//            }
+//            else
+//            {
+//                // Use the newer API for Android 33 and later
+//                if (Android.OS.Build.VERSION.SdkInt >= Android.OS.BuildVersionCodes.Tiramisu)
+//                {
+//                    // Redirect user to Bluetooth settings to enable Bluetooth
+//                    var intent = new Android.Content.Intent(Android.Provider.Settings.ActionBluetoothSettings);
+//                    intent.AddFlags(Android.Content.ActivityFlags.NewTask);
+//                    Android.App.Application.Context.StartActivity(intent);
+//                }
+//                else
+//                {
+//                    // Enable Bluetooth for older Android versions
+//                    DisplayAlert(bluetoothAdapter.Name, "Connect", "OK");
+//                    bluetoothAdapter.Enable();
+//                }
+//            }
+//        }
+//    }
+//#endif
+
+
+/////////////////////////////////////////
+
