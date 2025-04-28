@@ -3,8 +3,26 @@
              xmlns:x="http://schemas.microsoft.com/winfx/2009/xaml"
              x:Class="DronApp1.MainPage">
 
-       <StackLayout Orientation="Vertical" Padding="5" BackgroundColor="Khaki" >
 
+
+    <VerticalStackLayout Padding="20">
+
+        <Button Text="Сканировать устройства" Clicked="OnScanClicked" />
+
+        <CollectionView   x:Name="DevicesList" SelectionChanged="OnDeviceSelected" >
+            <CollectionView.ItemTemplate>
+                <DataTemplate>
+                    <Label FontSize="24" TextColor="#1E3F1C"  Text="{Binding}" />
+                </DataTemplate>
+            </CollectionView.ItemTemplate>
+        </CollectionView>
+
+    </VerticalStackLayout>
+
+
+    <!--<StackLayout Orientation="Vertical" Padding="5" BackgroundColor="Khaki" >
+
+      
 
         <Label  Text="Hello from SCB_ELECTRONMASH"
                 FontSize="24" 
@@ -13,24 +31,16 @@
                 Padding="0"
                 />
 
-        <!--<Entry Placeholder="Enter name" TextColor="DarkRed" />-->
-        <!--<Editor Placeholder="Enter name" AutoSize="TextChanges"/>-->
-        <!--<Label x:Name="label" Text="ON_OFF to Bluetooth" 
-            FontSize="22" 
-            HorizontalOptions="Center" 
-       
-            TextColor="Black"
-            Padding="10"
-       />-->
+         
 
         <Button Margin="15" Text="ON_OFF to Bluetooth"  x:Name="Counter5" TextColor="Red" BackgroundColor="Blue"  Clicked="On_Off_Bluetooth"/>
 
         
         
 
-        <!--<Button Text="Click me" TextColor="Red" Clicked="Scan_Clicked"/>-->
+        --><!--<Button Text="Click me" TextColor="Red" Clicked="Scan_Clicked"/>
 
-        <!--<Label x:Name="label2" Text="Connect to Bluetooth" 
+        <Label x:Name="label2" Text="Connect to Bluetooth" 
                FontSize="22" 
                HorizontalOptions="Center"       
                TextColor="Black"
@@ -38,11 +48,11 @@
              
                />
 
-        <Button Text="Click me" TextColor="Red" BackgroundColor="Green"  Clicked="Connect_Bluetooth"/>-->
+        <Button Text="Click me" TextColor="Red" BackgroundColor="Green"  Clicked="Connect_Bluetooth"/>
 
 
 
-        <!--<Label x:Name="label3" Text="data of hc-06" 
+        <Label x:Name="label3" Text="data of hc-06" 
                FontSize="22" 
                HorizontalOptions="Center"       
                TextColor="Black"
@@ -50,8 +60,8 @@
              
          />-->
 
-        <!--<Button  Text="Click me"  x:Name="Counter" TextColor="Red" BackgroundColor="Green"  Clicked="Send_Data"/>-->
-        <Button Margin="15"  Text="Scan of connect bluetooth"  x:Name="Counter3" TextColor="Red" BackgroundColor="#084706"  Clicked="Send_Data3"/>
+        <!--<Button  Text="Click me"  x:Name="Counter" TextColor="Red" BackgroundColor="Green"  Clicked="Send_Data"/>--><!--
+        <Button Margin="15"  Text="Scan of connect bluetooth"  x:Name="Counter3" TextColor="Red" BackgroundColor="#084706"  Clicked="Scan_of_connect_bluetooth"/>
 
         <Button Margin="15" Text="ReceiverData"  x:Name="Counter4" TextColor="Red" BackgroundColor="#1B1919"  Clicked="ReceiverData"/>
            
@@ -66,13 +76,18 @@
              
              />
 
-        <!--<Button   Text="Click me"  x:Name="Counter2" TextColor="Red" BackgroundColor="Coral"  Clicked="Send_Data2"/>-->
+        <Button Margin="15" Text="TransmitterData"  x:Name="Counter1" TextColor="Red" BackgroundColor="#1B1919"  Clicked="TransmitterData"/>
 
+        --><!--<Button   Text="Click me"  x:Name="Counter2" TextColor="Red" BackgroundColor="Coral"  Clicked="Send_Data2"/>
+      
+        <Button Text="Click me" TextColor="Red" BackgroundColor="Blue"  Clicked="Button_Clicked" />-->
 
+        <!--<Button Margin="15" Text="Scan_of_connect_bluetooth2" TextColor="Red" BackgroundColor="Blue"  Clicked="Scan_of_connect_bluetooth2"/>--><!--
         
-
-        <!--<Button Text="Click me" TextColor="Red" BackgroundColor="Blue"  Clicked="Button_Clicked" />-->
-    </StackLayout>
+        
+        
+        
+    </StackLayout>-->
 
 
 

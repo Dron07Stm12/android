@@ -20,8 +20,8 @@
 		<ImplicitUsings>enable</ImplicitUsings>
 		<Nullable>enable</Nullable>
 
-		<!-- Display name -->
-		<ApplicationTitle>DronApp1</ApplicationTitle>
+		<!-- Display name DronApp1 -->
+		<ApplicationTitle>HC-06Bluetooth</ApplicationTitle>
 
 		<!-- App Identifier -->
 		<ApplicationId>com.companyname.dronapp1</ApplicationId>

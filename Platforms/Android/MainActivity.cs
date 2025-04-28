@@ -10,44 +10,55 @@ using static Microsoft.Maui.ApplicationModel.Permissions;
 using InTheHand.Net.Sockets;
 //using AndroidX.Core.App;
 using AndroidX.Core.Content;
+using System.Collections.ObjectModel;
 
 namespace DronApp1
 {
 
-    //public class BluetoothScanner
-    //{
+    public class BluetoothScanner
+    {
 
-    //    private BluetoothAdapter _adapter = null;
-    //    private BluetoothSocket _device = null;
+        private BluetoothAdapter _adapter = null;
+        private BluetoothSocket _device = null;
+        //private DeviceReceiver _receiver;
+        private ObservableCollection<string> _devices2 = new();
+        private BluetoothDevice _device2 = null;
+        //partial void OnBluetoothDeviceDiscovered(BluetoothDevice device)
+        //{
+        //    // Handle the discovered device
+        //    System.Diagnostics.Debug.WriteLine($"Discovered device: {device.Name} - {device.Address}");
+        //}
 
-    //    private List<string> _devices = new List<string>();
+        private List<string> _devices = new List<string>();
 
-    //    public BluetoothScanner()
-    //    {
-    //        _adapter = BluetoothAdapter.DefaultAdapter;
-    //    }
+        public BluetoothScanner()
+        {
+            _adapter = BluetoothAdapter.DefaultAdapter;
+        }
 
-    //    public void StartScan()
-    //    {
-    //        if (_adapter != null && _adapter.IsEnabled)
-    //        {
-    //            _adapter.StartDiscovery();
-    //        }
-    //    }
+        public void StartScan()
+        {
+            if (_adapter != null && _adapter.IsEnabled)
+            {
+                _adapter.StartDiscovery();
+            }
+        }
 
-    //    public List<string> GetPairedDevices()
-    //    {
-    //        var pairedDevices = _adapter.BondedDevices;
-    //        foreach (var device in pairedDevices)
-    //        {
-    //            if (device.Name.Contains("HC-06"))
-    //            {
-    //                _devices.Add(device.Name + " - " + device.Address);
-    //            }
-    //        }
-    //        return _devices;
-    //    }
-    //}
+        public List<string> GetPairedDevices()
+        {
+            var pairedDevices = _adapter.BondedDevices;
+            foreach (var device in pairedDevices)
+            {
+                if (device.Name.Contains("HC-06"))
+                {
+                    _devices.Add(device.Name + " - " + device.Address);
+                }
+            }
+            return _devices;
+        }
+    }
+
+
 
 
 
@@ -55,7 +66,9 @@ namespace DronApp1
     [Activity(Theme = "@style/Maui.SplashTheme", MainLauncher = true, LaunchMode = LaunchMode.SingleTop, ConfigurationChanges = ConfigChanges.ScreenSize | ConfigChanges.Orientation | ConfigChanges.UiMode | ConfigChanges.ScreenLayout | ConfigChanges.SmallestScreenSize | ConfigChanges.Density)]
     public class MainActivity : MauiAppCompatActivity
     {
-       
+
+        public static MainActivity Instance { get; private set; }
+
 
         protected override void OnCreate(Bundle savedInstanceState)
         {
@@ -71,33 +84,33 @@ namespace DronApp1
             }
 
 
-            //if (Android.OS.Build.VERSION.SdkInt >= Android.OS.BuildVersionCodes.S)
-            //{
-            //    if (ContextCompat.CheckSelfPermission(Platform.CurrentActivity, Manifest.Permission.BluetoothScan) != Android.Content.PM.Permission.Granted ||
-            //        ContextCompat.CheckSelfPermission(Platform.CurrentActivity, Manifest.Permission.BluetoothConnect) != Android.Content.PM.Permission.Granted)
-            //    {
-            //        ActivityCompat.RequestPermissions(Platform.CurrentActivity, new string[]
-            //        {
-            //    Manifest.Permission.BluetoothScan,
-            //    Manifest.Permission.BluetoothConnect
-            //        }, 1);
-            //    }
-            //}
-
-            // Existing code...  
-
-            if (Build.VERSION.SdkInt >= BuildVersionCodes.S) // Android 31 (API level 31) and later  
+            if (Android.OS.Build.VERSION.SdkInt >= Android.OS.BuildVersionCodes.S)
             {
-                if (ContextCompat.CheckSelfPermission(Platform.CurrentActivity!, Manifest.Permission.BluetoothScan) != Android.Content.PM.Permission.Granted ||
-                    ContextCompat.CheckSelfPermission(Platform.CurrentActivity!, Manifest.Permission.BluetoothConnect) != Android.Content.PM.Permission.Granted)
+                if (ContextCompat.CheckSelfPermission(Platform.CurrentActivity, Manifest.Permission.BluetoothScan) != Android.Content.PM.Permission.Granted ||
+                    ContextCompat.CheckSelfPermission(Platform.CurrentActivity, Manifest.Permission.BluetoothConnect) != Android.Content.PM.Permission.Granted)
                 {
-                    ActivityCompat.RequestPermissions(Platform.CurrentActivity!, new string[]
+                    ActivityCompat.RequestPermissions(Platform.CurrentActivity, new string[]
                     {
-                       Manifest.Permission.BluetoothScan,
-                       Manifest.Permission.BluetoothConnect
+                Manifest.Permission.BluetoothScan,
+                Manifest.Permission.BluetoothConnect
                     }, 1);
                 }
             }
+
+            // Existing code...  
+
+            //if (Build.VERSION.SdkInt >= BuildVersionCodes.S) // Android 31 (API level 31) and later  
+            //{
+            //    if (ContextCompat.CheckSelfPermission(Platform.CurrentActivity!, Manifest.Permission.BluetoothScan) != Android.Content.PM.Permission.Granted ||
+            //        ContextCompat.CheckSelfPermission(Platform.CurrentActivity!, Manifest.Permission.BluetoothConnect) != Android.Content.PM.Permission.Granted)
+            //    {
+            //        ActivityCompat.RequestPermissions(Platform.CurrentActivity!, new string[]
+            //        {
+            //           Manifest.Permission.BluetoothScan,
+            //           Manifest.Permission.BluetoothConnect
+            //        }, 1);
+            //    }
+            //}
 
 
 
@@ -133,6 +146,8 @@ namespace DronApp1
 
 
 
+
+
     public class BluetoothHC06Reader
     {
         private BluetoothAdapter _adapter;
@@ -143,6 +158,7 @@ namespace DronApp1
         BluetoothDevice bluetoothDevice = null;
         BluetoothManager bluetoothManager = null;
         BroadcastReceiver broadcastReceiver = null;
+
 
 
         public BluetoothHC06Reader()
@@ -173,7 +189,7 @@ namespace DronApp1
         {
             try
             {
-              
+
                 byte[] buffer = new byte[1024];
                 int bytesRead = await _inputStream.ReadAsync(buffer, 0, buffer.Length);
                 return System.Text.Encoding.ASCII.GetString(buffer, 0, bytesRead);
