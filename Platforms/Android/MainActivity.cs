@@ -17,6 +17,7 @@ namespace DronApp1
 
     public class BluetoothScanner
     {
+        // private readonly ContentPage _page; // Add a reference to the page
 
         private BluetoothAdapter _adapter = null;
         private BluetoothSocket _device = null;
