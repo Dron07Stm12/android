@@ -2,22 +2,172 @@
             xmlns:x="http://schemas.microsoft.com/winfx/2009/xaml"  
             x:Class="DronApp1.MainPage">  
 
-   <VerticalStackLayout Padding="20">  
+   <VerticalStackLayout Padding="25" BackgroundColor="#21C021">
 
-       <Button Text="Сканировать устройства" Clicked="OnScanClicked" />  
 
-       <CollectionView x:Name="DevicesList"  
+        <Button Margin="5" Text="ON_OFF to Bluetooth"  x:Name="Counter5" TextColor="Red" BackgroundColor="Blue"  Clicked="On_Off_Bluetooth"/>
+        <Button Margin="5" Text="Scan devices"  TextColor="Red"  Clicked="OnScanClicked" />
+
+        <!-- Список устройств -->
+        <!--<CollectionView x:Name="DevicesList"
+                SelectionChanged="OnDeviceSelected"
+                SelectionMode="Single">
+            <CollectionView.ItemTemplate>
+                <DataTemplate>
+                    <Border x:Name="deviceBorder"
+                    Stroke="Gray"
+                    StrokeThickness="2"
+                    StrokeShape="RoundRectangle 10"
+                    Margin="5"
+                    Padding="20"
+                    BackgroundColor="White">
+                        <Label FontSize="24"
+                       TextColor="#1E3F1C"
+                       Text="{Binding Name}" />
+                        --><!-- Trigger, изменяющий фон при выборе --><!--
+                        <Border.Triggers>
+                            <DataTrigger TargetType="Border"
+                                 Binding="{Binding  Source={x:Reference DevicesList}, Path=SelectedItem}"
+                                 Value="{x:Null}">
+                                <Setter Property="BackgroundColor" Value="White" />
+                                <Setter Property="Stroke" Value="Gray" />
+                            </DataTrigger>
+                            <DataTrigger TargetType="Border"
+                                 Binding="{Binding Address}"
+                                 Value="{Binding SelectedItem.Address, Source={x:Reference DevicesList}}">
+                                <Setter Property="BackgroundColor" Value="LightBlue" />
+                                <Setter Property="Stroke" Value="Blue" />
+                            </DataTrigger>
+                        </Border.Triggers>
+                    </Border>
+                </DataTemplate>
+            </CollectionView.ItemTemplate>
+        </CollectionView>-->
+
+
+        <!-- Коллекция устройств -->
+        <!--<CollectionView x:Name="DevicesList"
+                SelectionChanged="OnDeviceSelected"
+                SelectionMode="Single">
+            <CollectionView.ItemTemplate>
+                <DataTemplate>
+                    <Border Stroke="Gray" StrokeShape="RoundRectangle 10" Margin="5" Padding="20">
+                        <Border.Triggers>
+                            <DataTrigger TargetType="Border" Binding="{Binding IsSelected}" Value="True">
+                                <Setter Property="BackgroundColor" Value="LightBlue" />
+                                <Setter Property="Stroke" Value="Blue" />
+                            </DataTrigger>
+                        </Border.Triggers>
+                        <Label FontSize="24"
+                       TextColor="#1E3F1C"
+                       Text="{Binding Name}" />
+                    </Border>
+                </DataTemplate>
+            </CollectionView.ItemTemplate>
+        </CollectionView>-->
+
+
+
+        <!--<CollectionView x:Name="DevicesList" 
+                        SelectionChanged="OnDeviceSelected" 
+                        SelectionMode="Single">
+
+            <CollectionView.ItemTemplate>
+                <DataTemplate>
+                    --><!-- Обрамление с фоном, который меняется в зависимости от выбора --><!--
+                    <Border Stroke="Gray" StrokeThickness="1" StrokeShape="RoundRectangle 10" Margin="5" Padding="10">
+                        <Border.Triggers>
+                            --><!-- Устанавливаем цвет фона, если устройство выбрано --><!--
+                            <DataTrigger TargetType="Border" 
+                                         Binding="{Binding IsSelected}" 
+                                         Value="True">
+                                <Setter Property="BackgroundColor" Value="LightBlue" />
+                            </DataTrigger>
+                        </Border.Triggers>
+
+                        --><!-- Отображаем название устройства --><!--
+                        <Label FontSize="24" TextColor="#1E3F1C" Text="{Binding Name}" />
+                    </Border>
+                </DataTemplate>
+            </CollectionView.ItemTemplate>
+        </CollectionView>-->
+
+
+
+
+        <CollectionView x:Name="DevicesList"  
                        SelectionChanged="OnDeviceSelected"  
                        SelectionMode="Single">  
            <CollectionView.ItemTemplate>  
                <DataTemplate>  
-                   <Border Stroke="Gray" StrokeShape="RoundRectangle 10" Margin="5" Padding="20">  
-                       <Label FontSize="24" TextColor="#1E3F1C" Text="{Binding Name}" />  
+                   <Border Stroke="MidnightBlue"  StrokeShape="RoundRectangle 10" Margin="5" Padding="10">  
+                       <Label FontSize="24" TextColor="#010700" Text="{Binding Name}"  />  
                    </Border>  
                </DataTemplate>  
            </CollectionView.ItemTemplate>  
-       </CollectionView>  
+       </CollectionView>
 
-   </VerticalStackLayout>  
+
+        <Button Margin="5" Text="ReceiverData"  x:Name="Counter4" TextColor="Red" BackgroundColor="#1B1919"  Clicked="ReceiverData"/>
+      
+
+        <!--<Label x:Name="label4"
+               Text="Empty text to receive data"
+               FontSize="18"
+               HorizontalOptions="Fill"
+               VerticalOptions="Start"
+               LineBreakMode="WordWrap"
+               TextColor="Black"
+               Padding="20"
+               HeightRequest="100"          
+               MaxLines="4"          
+               VerticalTextAlignment="Start"
+               HorizontalTextAlignment="Start"
+       />-->
+
+        <Border
+                Stroke="#0B0101"
+                StrokeThickness="2"
+                StrokeShape="RoundRectangle 10"
+                BackgroundColor="White"
+                Padding="10"
+                Margin="10">
+
+                    <Label x:Name="label4"
+                       Text="Empty text to receive data"
+                       FontSize="18"
+                       HorizontalOptions="Fill"
+                       VerticalOptions="Start"
+                       LineBreakMode="WordWrap"
+                       TextColor="Black"
+                       HeightRequest="100"
+                       MaxLines="4"
+                       VerticalTextAlignment="Start"
+                       HorizontalTextAlignment="Start" />   
+        </Border>
+
+        <Button Margin="5" Text="TransmitterData"  x:Name="Counter1" TextColor="Red" BackgroundColor="#1B1919"  Clicked="TransmitterData"/>
+       
+       <Entry x:Name="entry1" 
+                   Placeholder="Enter text to transfer data"
+                    PlaceholderColor="DimGrey"
+                   FontSize="18" 
+                   HorizontalOptions="Fill"
+                   VerticalOptions="Fill"              
+                   TextColor="Black"   
+             />
+        <!--<Button Margin="5" Text="SendData"  x:Name="Counter2" TextColor="Red" BackgroundColor="#1B1919"  Clicked="SendData"/>
+        <Label x:Name="label2" Text="Empty string of senddata"
+                   FontSize="22" 
+                   HorizontalOptions="Fill"
+                     VerticalOptions="Fill"
+                   LineBreakMode="WordWrap"   
+                   TextColor="Black"
+                  Padding="20"
+             
+             />
+        <Button Margin="5" Text="Connect to device"  x:Name="Counter3" TextColor="Red" BackgroundColor="#1B1919"  Clicked="Con--><!--nectToDevice"/>-->   
+
+    </VerticalStackLayout>  
 
 </ContentPage>

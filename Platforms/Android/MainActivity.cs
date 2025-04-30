@@ -18,7 +18,7 @@ namespace DronApp1
     public class BluetoothScanner
     {
         // private readonly ContentPage _page; // Add a reference to the page
-
+        string[] people = { "Tom", "Tim", "Bob", "Sam" };
         private BluetoothAdapter _adapter = null;
         private BluetoothSocket _device = null;
         //private DeviceReceiver _receiver;
@@ -35,6 +35,12 @@ namespace DronApp1
         public BluetoothScanner()
         {
             _adapter = BluetoothAdapter.DefaultAdapter;
+            if (people.Any())
+            {
+                // Handle the case when Bluetooth is not supported
+                System.Diagnostics.Debug.WriteLine("Bluetooth is not supported on this device.");
+                return;
+            }
         }
 
         public void StartScan()
