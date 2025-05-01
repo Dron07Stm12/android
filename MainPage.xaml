@@ -2,32 +2,41 @@
             xmlns:x="http://schemas.microsoft.com/winfx/2009/xaml"  
             x:Class="DronApp1.MainPage">  
 
-   <VerticalStackLayout Padding="25" BackgroundColor="#21C021">
+   <VerticalStackLayout Padding="25" BackgroundColor="Khaki">
 
 
         <Button Margin="5" Text="ON_OFF to Bluetooth"  x:Name="Counter5" TextColor="Red" BackgroundColor="Blue"  Clicked="On_Off_Bluetooth"/>
-        <Button Margin="5" Text="Scan devices"  TextColor="Red"  Clicked="OnScanClicked" />
+        <Button Margin="5" Text="Scan devices"  TextColor="Red" BackgroundColor="ForestGreen"  Clicked="OnScanClicked" />
 
        
-
-
-        <CollectionView x:Name="DevicesList"  
+        <!--<CollectionView x:Name="DevicesList"  
                        SelectionChanged="OnDeviceSelected"  
                        SelectionMode="Single">  
            <CollectionView.ItemTemplate>  
                <DataTemplate>  
                    <Border Stroke="MidnightBlue"  StrokeShape="RoundRectangle 10" Margin="5" Padding="5">  
-                       <Label FontSize="24" TextColor="#010700" Text="{Binding Name}"  />  
-                   </Border>  
+                       --><!--<Label FontSize="24" TextColor="#010700" Text="{Binding Name}"  />--><!--
+                        <Label FontSize="16" TextColor="#010700" Text="{Binding DisplayName}" />
+                    </Border>  
                </DataTemplate>  
            </CollectionView.ItemTemplate>  
-       </CollectionView>
-
-      
+       </CollectionView>-->
 
 
-
-
+        <CollectionView x:Name="DevicesList"
+                SelectionChanged="OnDeviceSelected"
+                SelectionMode="Single">
+            <CollectionView.ItemTemplate>
+                <DataTemplate>
+                    <Border Stroke="MidnightBlue" StrokeShape="RoundRectangle 10" Margin="5" Padding="5">
+                        <VerticalStackLayout>
+                            <Label FontSize="20" TextColor="Black" Text="{Binding DisplayName}" />
+                            <Label FontSize="16" TextColor="Gray" Text="{Binding DisplayStatus}" />
+                        </VerticalStackLayout>
+                    </Border>
+                </DataTemplate>
+            </CollectionView.ItemTemplate>
+        </CollectionView>
 
 
 
@@ -64,11 +73,14 @@
                        VerticalOptions="Start"
                        LineBreakMode="WordWrap"
                        TextColor="Black"
-                       HeightRequest="100"
-                       MaxLines="4"
+                       HeightRequest="150"
+                       MaxLines="8"
                        VerticalTextAlignment="Start"
                        HorizontalTextAlignment="Start" />   
         </Border>
+       
+       
+       
 
         <Button Margin="5" Text="TransmitterData"  x:Name="Counter1" TextColor="Red" BackgroundColor="#1B1919"  Clicked="TransmitterData"/>
        

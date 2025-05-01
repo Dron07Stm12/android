@@ -21,6 +21,8 @@ using DronApp1;
 // Работа с сокетами на сетевом уровне TCP/IP (для сетевых соединений)
 using System.Net.Sockets;
 using System.ComponentModel;
+using System.Text;
+
 
 #if ANDROID// --- Только для Android (директива препроцессора) ---
 
@@ -57,40 +59,98 @@ namespace DronApp1
             InitializeComponent(); // Инициализация всех компонентов страницы, созданных в XAML
 
 #if ANDROID
+            //Привязывает коллекцию _devices(тип ObservableCollection<DeviceInfo>) к визуальному элементу CollectionView.
             DevicesList.ItemsSource = _devices;// Устанавливаем источник данных для списка устройств — нашу коллекцию _devices
 
 
             _adapter = BluetoothAdapter.DefaultAdapter;// Получаем ссылку на стандартный Bluetooth-адаптер устройства
 
 
-             // Действие при обнаружении нового устройства:
-              // Проверяем, нет ли уже устройства с таким же адресом (уникальный идентификатор MAC)
-            _receiver = new DeviceReceiver(deviceInfo =>
-            {
-                if (!_devices.Any(d => d.Address == deviceInfo.Address))
-                {
-                  // Если устройство не найдено в списке, добавляем его
-                    _devices.Add(deviceInfo);
-                }
-            });
+            // Действие при обнаружении нового устройства:
+            // Проверяем, нет ли уже устройства с таким же адресом (уникальный идентификатор MAC)
+            //_receiver = new DeviceReceiver(deviceInfo =>
+            //{
+            //    if (!_devices.Any(d => d.Address == deviceInfo.Address))
+            //    {
+            //      // Если устройство не найдено в списке, добавляем его
+            //        _devices.Add(deviceInfo);
+            //    }
+            //});
 
             //////////////////////////////можно использовать  делегат
-            //_receiver = new DeviceReceiver(delegate(DeviceInfo deviceInfo){
-                  
-            //       if(! _devices.Any(delegate(DeviceInfo deviceInfo2){
-                   
-            //       return deviceInfo2.Address == deviceInfo.Address;    
-            //       }))
-            //       {
-                     
-            //         _devices.Add(deviceInfo);  
-            //       }
-               
-            //   });
+            //_receiver = new DeviceReceiver(delegate (DeviceInfo deviceInfo)
+            //{
 
+            //    if (!_devices.Any(delegate (DeviceInfo deviceInfo2)
+            //    {
+
+            //        return deviceInfo2.Address == deviceInfo.Address;
+            //    }))
+            //    {
+
+            //        _devices.Add(deviceInfo);
+            //    }
+
+            //});
+
+            //////////////////////////////или так использовать  делегат
+            //_receiver = new DeviceReceiver(delegate (DeviceInfo deviceInfo)
+            //{
+
+            //    Func<DeviceInfo, bool> predicate = delegate (DeviceInfo deviceInfo2)
+            //    {
+            //        return deviceInfo2.Address == deviceInfo.Address;
+            //    };
+
+            //    if (!_devices.Any(predicate))
+            //    {
+
+
+            //        _devices.Add(deviceInfo);
+
+
+            //    }
+
+            //});
+
+
+            //_action — это делегат, то есть указатель на функцию, принимающую один аргумент типа DeviceInfo и ничего не возвращающую(void).
+            //Внутри создаётся Func<DeviceInfo, bool> predicate, который проверяет: есть ли в списке _devices устройство с тем же Address.
+            // Если такого устройства ещё нет, то оно добавляется в список.
+
+            Action<DeviceInfo> _action = delegate (DeviceInfo deviceInfo)
+            {
+                Func<DeviceInfo, bool> predicate = delegate (DeviceInfo deviceInfo2)
+                {
+                    return deviceInfo2.Address == deviceInfo.Address;
+                };
+
+                // Проверяем, есть ли уже устройство с таким адресом в списке
+                if (!_devices.Any(predicate))
+                {
+                    // Если нет, добавляем его в список
+                    _devices.Add(deviceInfo);
+
+                }
+            };
+            //Создаёт экземпляр класса DeviceReceiver, который наследует BroadcastReceiver
+            //и будет получать события, когда найдено новое устройство.
+            //В конструктор DeviceReceiver передаётся делегат( Action), который вызывается каждый раз,
+            //когда найдено новое устройство.
+            //Этот делегат будет вызывать метод, который проверяет, есть ли уже устройство с таким адресом в списке _devices.
+            //Создаёт приёмник, которому передаётся  делегат _action, и который будет вызываться каждый раз,
+            // когда Android обнаруживает новое Bluetooth - устройство.
+
+            _receiver = new DeviceReceiver(_action);
 
             /////////////////////////////
-             // Регистрируем наш приемник на события нахождения новых Bluetooth устройств
+            // Регистрируем наш приемник на события нахождения новых Bluetooth устройств
+            // (BluetoothDevice.ActionFound) и передаём ему делегат, который будет вызван при нахождении устройства
+            // (в данном случае это анонимный метод, который добавляет устройство в список _devices)
+            //Регистрирует твой приёмник в системе Android, чтобы получать событие BluetoothDevice.ActionFound — 
+            //оно возникает каждый раз, когда найдено новое устройство.
+
+
             Application.Context.RegisterReceiver(_receiver, new IntentFilter(BluetoothDevice.ActionFound));
 #endif
         }
@@ -221,6 +281,7 @@ namespace DronApp1
 
                     await DisplayAlert("Отключение", $"Отключено от {device.Name} [{device.Address}].", "OK");
                     socket_global = null;  // Очистка глобального сокета после отключения
+                    device.IsConnected = false; // 🔄 ОБЯЗАТЕЛЬНО обновляем статус в модели
                 }
                 else
                 {
@@ -257,10 +318,10 @@ namespace DronApp1
                     if (_selectedDevice != null && selectedDevice.Address == _selectedDevice.Address)
                     {
                         // Повторный клик по уже выбранному устройству — отключение
-                         DevicesList.SelectedItem = null;
-                        _selectedDevice = null;
+                        
                         await DisconnectFromDeviceAsync(_selectedDevice);
-                       
+                        DevicesList.SelectedItem = null;
+                        _selectedDevice = null;
                     }
                     else
                     {
@@ -289,14 +350,14 @@ namespace DronApp1
 
 
 #if ANDROID
+
         private async Task<bool> ConnectToDeviceAsync(DeviceInfo deviceInfo)
         {
             try
             {
+                await DisplayAlert("Ожидайте подключения", $"{deviceInfo.Name} [{deviceInfo.Address}]", "OK");
 
-            await DisplayAlert("Ожидайте подключения", $"{_selectedDevice.Name} [{_selectedDevice.Address}]", "OK");
                 var device = _adapter.GetRemoteDevice(deviceInfo.Address);
-
                 _adapter.CancelDiscovery();
 
                 socket_global = device.CreateRfcommSocketToServiceRecord(
@@ -304,16 +365,58 @@ namespace DronApp1
 
                 await Task.Run(() => socket_global.Connect());
 
-                return socket_global.IsConnected;
+                if (socket_global.IsConnected)
+                {
+                    deviceInfo.IsConnected = true; // 🔵 ОБЯЗАТЕЛЬНО!
+                    return true;
+                }
+
+                return false;
             }
             catch (Exception ex)
             {
                 await DisplayAlert("Ошибка подключения", $"Ошибка: {ex.Message}", "OK");
-                 DevicesList.SelectedItem = null;
-                  //_selectedDevice = null;
                 return false;
             }
         }
+
+
+
+
+
+
+
+
+
+        /// ///////////
+
+
+
+        //private async Task<bool> ConnectToDeviceAsync(DeviceInfo deviceInfo)
+        //{
+        //    try
+        //    {
+
+        //    await DisplayAlert("Ожидайте подключения", $"{_selectedDevice.Name} [{_selectedDevice.Address}]", "OK");
+        //        var device = _adapter.GetRemoteDevice(deviceInfo.Address);
+
+        //        _adapter.CancelDiscovery();
+
+        //        socket_global = device.CreateRfcommSocketToServiceRecord(
+        //            Java.Util.UUID.FromString("00001101-0000-1000-8000-00805F9B34FB"));
+
+        //        await Task.Run(() => socket_global.Connect());
+
+        //        return socket_global.IsConnected;
+        //    }
+        //    catch (Exception ex)
+        //    {
+        //        await DisplayAlert("Ошибка подключения", $"Ошибка: {ex.Message}", "OK");
+        //         DevicesList.SelectedItem = null;
+        //          //_selectedDevice = null;
+        //        return false;
+        //    }
+        //}
 
         class DeviceReceiver : BroadcastReceiver
         {
@@ -324,10 +427,42 @@ namespace DronApp1
                 _onDeviceFound = onDeviceFound;
             }
 
+            //Это переопределение метода OnReceive из класса BroadcastReceiver,
+            // который используется в Android для реакции на системные события.
+            //В данном случае, когда устройство найдено, вызывается делегат _onDeviceFound,
+            // который передаёт информацию о найденном устройстве в метод, который его обработает.
+            //Метод OnReceive вызывается системой Android, когда происходит событие, на которое подписан приёмник.
+            //В данном случае, когда устройство найдено, вызывается делегат _onDeviceFound,
+            // который передаёт информацию о найденном устройстве в метод, который его обработает.
+            //Метод OnReceive вызывается системой Android, когда происходит событие, на которое подписан приёмник.
+
+            /// ////////////////////////////////////////////////////////////////////////////////////////////
+            /// Пользователь нажимает кнопку "Сканировать".
+            // Android начинает поиск Bluetooth-устройств.
+            // Для каждого найденного устройства Android вызывает OnReceive.
+            // Метод извлекает данные устройства и передаёт их в делегат _onDeviceFound.
+            //Делегат добавляет устройство в список _devices, если оно новое.
+            // UI автоматически обновляется, потому что ObservableCollection привязана к CollectionView.
+            //Метод OnReceive — ядро приёма событий Bluetooth-сканирования.
+            // Он мост между Android-системой и твоим пользовательским интерфейсом.Всё, что тебе нужно от найденного устройства
+            //— здесь обрабатывается: извлечение, проверка, обёртка в DeviceInfo и передача дальше.
+
+
+
+
+
             public override void OnReceive(Context context, Intent intent)
             {
+
+                //Система Android посылает множество различных Intent-ов, и здесь  фильтруется только нужные — 
+                //событие BluetoothDevice.ActionFound.
+                //Это означает: найдено новое Bluetooth - устройство при вызове StartDiscovery().
                 if (intent.Action == BluetoothDevice.ActionFound)
                 {
+                    // Получаем объект BluetoothDevice из Intent
+                    // (это устройство, которое было найдено)
+                    
+
                     BluetoothDevice device = (BluetoothDevice)intent.GetParcelableExtra(BluetoothDevice.ExtraDevice);
                     if (device != null)
                     {
@@ -339,8 +474,12 @@ namespace DronApp1
                             Name = name,
                             Address = address
                         };
-
+                        //Делегат _onDeviceFound, который ты передал в конструктор DeviceReceiver, 
+                        //вызывается с найденным deviceInfo. Это позволяет отделить:
+                        //логику нахождения устройства(которая здесь),
+                        //от логики, что делать с этим устройством(которая задаётся извне через делегат).
                         _onDeviceFound?.Invoke(deviceInfo);
+                      //  _onDeviceFound(deviceInfo);
                     }
                 }
             }
@@ -350,17 +489,64 @@ namespace DronApp1
 
 
 
-        public class DeviceInfo
+        //public class DeviceInfo
+        //{
+        //    public string Name { get; set; }
+        //    public string Address { get; set; }
+
+        //    public string DisplayName => $"{Name} ({Address})";
+
+        //    // Добавляем флаг для отслеживания выделенного состояния
+        //    //    public bool IsSelected { get; set; }
+
+        //    public override string ToString()
+        //    {
+        //        return $"{Name} [{Address}]";
+        //    }
+
+        //    public override bool Equals(object obj)
+        //    {
+        //        return obj is DeviceInfo other && Address == other.Address;
+        //    }
+
+        //    public override int GetHashCode()
+        //    {
+        //        return Address.GetHashCode();
+        //    }
+        //}
+
+
+        public class DeviceInfo : INotifyPropertyChanged
         {
             public string Name { get; set; }
             public string Address { get; set; }
 
-              // Добавляем флаг для отслеживания выделенного состояния
-          //    public bool IsSelected { get; set; }
+            // Автоматическое отображение имени и адреса
+            public string DisplayName => $"{Name ?? "Неизвестное устройство"} ({Address})";
+
+            private bool _isConnected;
+
+            // Флаг подключения
+            public bool IsConnected
+            {
+                get => _isConnected;
+                set
+                {
+                    if (_isConnected != value)
+                    {
+                        _isConnected = value;
+                        OnPropertyChanged(nameof(IsConnected));
+                        OnPropertyChanged(nameof(DisplayStatus));
+                    }
+                }
+            }
+
+            // Для визуального отображения статуса
+            public string DisplayStatus => IsConnected ? "🔵 Подключено" : "⚪ Не подключено";
 
             public override string ToString()
             {
-                return $"{Name} [{Address}]";
+                return $"{Name ?? "Неизвестное устройство"} [{Address}]";
             }
 
             public override bool Equals(object obj)
@@ -370,7 +556,16 @@ namespace DronApp1
 
             public override int GetHashCode()
             {
-                return Address.GetHashCode();
+                return Address?.GetHashCode() ?? 0;
+            }
+
+            // Поддержка обновлений UI при изменении свойств
+            public event PropertyChangedEventHandler PropertyChanged;
+
+            protected virtual void OnPropertyChanged(string propertyName)
+            {
+                var handler = PropertyChanged;
+                handler?.Invoke(this, new PropertyChangedEventArgs(propertyName));
             }
         }
 
@@ -383,43 +578,85 @@ namespace DronApp1
 
 
 
+
+
 #endif
 
 
-        public async void ReceiverData(object sender, EventArgs e)//Bluetooth connect
-        {
+//        public async void ReceiverData(object sender, EventArgs e)//Bluetooth connect
+//        {
 
-            Stream? _inputStream = null; // Initialize the variable to avoid CS0165
-            byte[] buffer = new byte[2048];
-#if ANDROID
+//            Stream? _inputStream = null; // Initialize the variable to avoid CS0165
+//            byte[] buffer = new byte[2048];
+//#if ANDROID
 
-                    try
-                    {
-                        _inputStream = socket_global.InputStream;
-                        // Use the input stream to read data from the Bluetooth device
-                        // For example, you can read data like this:
-                        while (true)
-                        {
-                            await Task.Delay(200);
+//                    try
+//                    {
+//                        _inputStream = socket_global.InputStream;
+//                        // Use the input stream to read data from the Bluetooth device
+//                        // For example, you can read data like this:
+//                        while (true)
+//                        {
+//                            await Task.Delay(200);
                               
-                            int bytesRead = await _inputStream.ReadAsync(buffer, 0, buffer.Length);
-                            receivedData2 = System.Text.Encoding.ASCII.GetString(buffer, 0, bytesRead);
-                            label4.Text = $"data hc-06:{Environment.NewLine}{receivedData2}";
-                            SemanticScreenReader.Announce(label4.Text);
-                            receivedData2 = null;
+//                            int bytesRead = await _inputStream.ReadAsync(buffer, 0, buffer.Length);
+//                            receivedData2 = System.Text.Encoding.ASCII.GetString(buffer, 0, bytesRead);
+//                            label4.Text = $"data hc-06:{Environment.NewLine}{receivedData2}";
+//                            SemanticScreenReader.Announce(label4.Text);
+//                            receivedData2 = null;
+//                        }
+//                    }
+//                    catch (Exception ex)
+//                    {
+//                        await DisplayAlert("Error", $"Failed to connect: {ex.Message}", "OK");
+//                        return;
+//                    }
+
+//#endif
+
+//        }
+
+        public async void ReceiverData(object sender, EventArgs e) // Bluetooth connect
+        {
+            Stream? _inputStream = null;
+            byte[] buffer = new byte[2048];
+            StringBuilder dataBuffer = new StringBuilder(); // 🔄 буфер для накопления текста
+
+#if ANDROID
+            try
+            {
+                _inputStream = socket_global.InputStream;
+
+                while (true)
+                {
+                    await Task.Delay(100); // ⏱ Пауза между попытками чтения (можно уменьшить до 50–100)
+
+                    if (_inputStream.CanRead)
+                    {
+                        int bytesRead = await _inputStream.ReadAsync(buffer, 0, buffer.Length);
+                        if (bytesRead > 0)
+                        {
+                            string part = System.Text.Encoding.ASCII.GetString(buffer, 0, bytesRead);
+                            dataBuffer.Append(part); // 📥 Накопление части данных
+
+                            // Проверка на завершение строки
+                            if (part.Contains("\n"))
+                            {
+                                string completeMessage = dataBuffer.ToString().Trim(); // 🧹 Удаляем лишние пробелы и переносы
+                                label4.Text = $"data hc-06:{Environment.NewLine}{completeMessage}";
+                                SemanticScreenReader.Announce(label4.Text);
+                                dataBuffer.Clear(); // 🧼 Очищаем буфер для следующего сообщения
+                            }
                         }
                     }
-                    catch (Exception ex)
-                    {
-                        await DisplayAlert("Error", $"Failed to connect: {ex.Message}", "OK");
-                        return;
-                    }
-
+                }
+            }
+            catch (Exception ex)
+            {
+                await DisplayAlert("Ошибка", $"Не удалось получить данные: {ex.Message}", "OK");
+            }
 #endif
-
         }
-
-
 
 
 
