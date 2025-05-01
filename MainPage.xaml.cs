@@ -164,75 +164,6 @@ namespace DronApp1
 #endif
         }
 
-        // Updated method to fix CS8601: Possible null reference assignment.
-        //        private async void OnDeviceSelected(object sender, SelectionChangedEventArgs e)
-        //        {
-        //#if ANDROID
-        //            // Получаем текущее выбранное устройство
-        //            var clickedDevice = e.CurrentSelection.FirstOrDefault() as DeviceInfo;
-
-        //            // Если кликнули повторно по уже выбранному — снимаем выбор
-        //            if (_selectedDevice != null && clickedDevice != null && _selectedDevice.Address == clickedDevice.Address)
-        //            {
-        //                DevicesList.SelectedItem = null;   // Сброс визуального выделения
-        //                _selectedDevice = null;            // Обнуляем переменную выбранного устройства
-
-        //                // Если ты используешь цвет/рамку для визуального выделения — здесь можно сбросить IsSelected (если такое есть)
-        //                if (clickedDevice != null)
-        //                {
-        //                    clickedDevice.IsSelected = false; // если ты используешь такую логику
-        //                }
-
-        //                // Обновим привязку, чтобы визуально обновилось
-        //                DevicesList.ItemsSource = null;
-        //                DevicesList.ItemsSource = _devices;
-
-        //                await DisplayAlert("Отмена", "Выбор устройства отменён", "OK");
-        //                return;
-        //            }
-
-        //            // Снимаем выделение с предыдущего устройства, если есть
-        //            if (_selectedDevice != null)
-        //            {
-        //                _selectedDevice.IsSelected = false;
-        //            }
-
-        //            // Обновляем текущий выбор
-        //            if (clickedDevice != null) // Ensure clickedDevice is not null
-        //            {
-        //                _selectedDevice = clickedDevice;
-
-        //                // Устанавливаем новый флаг выбора (если используется для визуального отображения)
-        //                _selectedDevice.IsSelected = true;
-
-        //                // Обновим визуальное выделение
-        //                DevicesList.ItemsSource = null;
-        //                DevicesList.ItemsSource = _devices;
-
-        //                await DisplayAlert("Вы выбрали устройство", $"{_selectedDevice.Name} [{_selectedDevice.Address}]", "OK");
-
-        //                bool connectResult = await ConnectToDeviceAsync(_selectedDevice);
-        //                await DisplayAlert("Ожидайте подключения", $"{_selectedDevice.Name} [{_selectedDevice.Address}]", "OK");
-
-        //                if (connectResult)
-        //                {
-        //                    await DisplayAlert("Успех", $"Подключение к {_selectedDevice.Name} установлено!", "OK");
-        //                }
-        //                else
-        //                {
-        //                    await DisplayAlert("Ошибка", $"Не удалось подключиться к {_selectedDevice.Name}.", "OK");
-        //                }
-        //            }
-        //            else
-        //            {
-        //                await DisplayAlert("Ошибка", "Устройство не выбрано!", "OK");
-        //            }
-        //#endif
-        //        }
-
-
-
-
 
 
 
@@ -242,113 +173,70 @@ namespace DronApp1
         //        private async void OnDeviceSelected(object sender, SelectionChangedEventArgs e)
         //        {
         //#if ANDROID
-        //    // Получаем текущее выбранное устройство
-        //    var clickedDevice = e.CurrentSelection.FirstOrDefault() as DeviceInfo;
 
-        //    // Если кликнули повторно по уже выбранному — снимаем выбор
-        //    if (_selectedDevice != null && clickedDevice != null && _selectedDevice.Address == clickedDevice.Address)
-        //    {
-        //        DevicesList.SelectedItem = null;   // Сброс визуального выделения
-        //        _selectedDevice = null;            // Обнуляем переменную выбранного устройства
 
-        //        // Если ты используешь цвет/рамку для визуального выделения — здесь можно сбросить IsSelected (если такое есть)
-        //        if (clickedDevice != null)
-        //        {
-        //            clickedDevice.IsSelected = false; // если ты используешь такую логику
-        //        }
+        //                                await DisplayAlert("Клик!", "Вы кликнули на устройство!", "OK");
+        //                              // Получаем выбранное пользователем устройство
+        //                                _selectedDevice = e.CurrentSelection.FirstOrDefault() as DeviceInfo;
+        //                              //  if( e.CurrentSelection.FirstOrDefault() is DeviceInfo){ _selectedDevice = (DeviceInfo)e.CurrentSelection.FirstOrDefault();}
 
-        //        // Обновим привязку, чтобы визуально обновилось
-        //        DevicesList.ItemsSource = null;
-        //        DevicesList.ItemsSource = _devices;
 
-        //        await DisplayAlert("Отмена", "Выбор устройства отменён", "OK");
-        //        return;
-        //    }
+        //                                if (_selectedDevice == null)
+        //                                {
+        //                                    await DisplayAlert("Ошибка", "Устройство не выбрано!", "OK");
+        //                                    return;
+        //                                }
 
-        //    // Снимаем выделение с предыдущего устройства, если есть
-        //    if (_selectedDevice != null)
-        //    {
-        //        _selectedDevice.IsSelected = false;
-        //    }
+        //                                await DisplayAlert($"Вы выбрали устройство", $"{_selectedDevice.Name} [{_selectedDevice.Address}]", "OK");
 
-        //    // Обновляем текущий выбор
-        //    _selectedDevice = clickedDevice;
+        //                                bool connectResult = await ConnectToDeviceAsync(_selectedDevice);
+        //                                 await DisplayAlert("Ожидайте подключения", $"{_selectedDevice.Name} [{_selectedDevice.Address}]", "OK");
+        //                                if (connectResult)
+        //                                {
+        //                                    await DisplayAlert("Успех", $"Подключение к {_selectedDevice.Name} установлено!", "OK");
+        //                                }
+        //                                else
+        //                                {
+        //                                    await DisplayAlert("Ошибка", $"Не удалось подключиться к {_selectedDevice.Name}.", "OK");
+        //                                }
+        //                                //  Сброс выбора, чтобы SelectionChanged снова срабатывал
+        //                             //    DevicesList.SelectedItem = null;
+        //                              //    _selectedDevice = null;
 
-        //    if (_selectedDevice == null)
-        //    {
-        //        await DisplayAlert("Ошибка", "Устройство не выбрано!", "OK");
-        //        return;
-        //    }
-
-        //    // Устанавливаем новый флаг выбора (если используется для визуального отображения)
-        //    _selectedDevice.IsSelected = true;
-
-        //    // Обновим визуальное выделение
-        //    DevicesList.ItemsSource = null;
-        //    DevicesList.ItemsSource = _devices;
-
-        //    await DisplayAlert("Вы выбрали устройство", $"{_selectedDevice.Name} [{_selectedDevice.Address}]", "OK");
-
-        //    bool connectResult = await ConnectToDeviceAsync(_selectedDevice);
-        //    await DisplayAlert("Ожидайте подключения", $"{_selectedDevice.Name} [{_selectedDevice.Address}]", "OK");
-
-        //    if (connectResult)
-        //    {
-        //        await DisplayAlert("Успех", $"Подключение к {_selectedDevice.Name} установлено!", "OK");
-        //    }
-        //    else
-        //    {
-        //        await DisplayAlert("Ошибка", $"Не удалось подключиться к {_selectedDevice.Name}.", "OK");
-        //    }
         //#endif
         //        }
+#if ANDROID
+        private async Task DisconnectFromDeviceAsync(DeviceInfo device)
+        {
 
 
+            try
+            {
+                if (socket_global != null && socket_global.IsConnected)
+                {
+                    await Task.Run(() =>
+                    {
+                        socket_global.Close();  // Закрываем соединение
+                    });
 
+                    await DisplayAlert("Отключение", $"Отключено от {device.Name} [{device.Address}].", "OK");
+                    socket_global = null;  // Очистка глобального сокета после отключения
+                }
+                else
+                {
+                    await DisplayAlert("Ошибка", "Не удалось найти активное подключение.", "OK");
+                     DevicesList.SelectedItem = null;
+                  //   _selectedDevice = null; // Обнуляем переменную выбранного устройства   
 
+                }
+            }
+            catch (Exception ex)
+            {
+                await DisplayAlert("Ошибка", $"Ошибка отключения: {ex.Message}", "OK");
+            }
 
-        //        private async void OnDeviceSelected(object sender, SelectionChangedEventArgs e)
-        //        {
-        //#if ANDROID
-        //    // Получаем текущее выбранное устройство
-        //    var clickedDevice = e.CurrentSelection.FirstOrDefault() as DeviceInfo;
-
-        //    // Если кликнули повторно по уже выбранному — снимаем выбор
-        //    if (_selectedDevice != null && clickedDevice != null && _selectedDevice.Address == clickedDevice.Address)
-        //    {
-        //        DevicesList.SelectedItem = null;   // Сброс выделения
-        //        _selectedDevice = null;            // Обнуляем переменную
-        //        await DisplayAlert("Отмена", "Выбор устройства отменён", "OK");
-        //        return;
-        //    }
-
-        //    // Обновляем текущий выбор
-        //    _selectedDevice = clickedDevice;
-
-        //    if (_selectedDevice == null)
-        //    {
-        //        await DisplayAlert("Ошибка", "Устройство не выбрано!", "OK");
-        //        return;
-        //    }
-
-        //    await DisplayAlert("Вы выбрали устройство", $"{_selectedDevice.Name} [{_selectedDevice.Address}]", "OK");
-
-        //    bool connectResult = await ConnectToDeviceAsync(_selectedDevice);
-        //    await DisplayAlert("Ожидайте подключения", $"{_selectedDevice.Name} [{_selectedDevice.Address}]", "OK");
-
-        //    if (connectResult)
-        //    {
-        //        await DisplayAlert("Успех", $"Подключение к {_selectedDevice.Name} установлено!", "OK");
-        //    }
-        //    else
-        //    {
-        //        await DisplayAlert("Ошибка", $"Не удалось подключиться к {_selectedDevice.Name}.", "OK");
-        //    }
-        //#endif
-        //        }
-
-
-
+        }
+#endif
 
 
 
@@ -357,32 +245,46 @@ namespace DronApp1
         private async void OnDeviceSelected(object sender, SelectionChangedEventArgs e)
         {
 #if ANDROID
-                     //   await DisplayAlert("Клик!", "Вы кликнули на устройство!", "OK");
-                      // Получаем выбранное пользователем устройство
-                        _selectedDevice = e.CurrentSelection.FirstOrDefault() as DeviceInfo;
-                      //  if( e.CurrentSelection.FirstOrDefault() is DeviceInfo){ _selectedDevice = (DeviceInfo)e.CurrentSelection.FirstOrDefault();}
+                    var selectedDevice = e.CurrentSelection.FirstOrDefault() as DeviceInfo;
+                    if (selectedDevice == null)
+                    { 
+    
+                     DevicesList.SelectedItem = null;
+                     return;
+                    }
+       
 
+                    if (_selectedDevice != null && selectedDevice.Address == _selectedDevice.Address)
+                    {
+                        // Повторный клик по уже выбранному устройству — отключение
+                         DevicesList.SelectedItem = null;
+                        _selectedDevice = null;
+                        await DisconnectFromDeviceAsync(_selectedDevice);
+                       
+                    }
+                    else
+                    {
+                        // Новый выбор — подключение
+                        _selectedDevice = selectedDevice;
 
-                        if (_selectedDevice == null)
-                        {
-                            await DisplayAlert("Ошибка", "Устройство не выбрано!", "OK");
-                            return;
+                        bool connected = await ConnectToDeviceAsync(_selectedDevice);
+                        if (connected)
+                            await DisplayAlert("Успех", $"Подключено к {_selectedDevice.Name}", "OK");
+
+                        else{ await DisplayAlert("Ошибка", $"Не удалось подключиться к {_selectedDevice.Name}", "OK");
+                         DevicesList.SelectedItem = null;
+                          _selectedDevice = null;
                         }
+                           
+                    }
 
-                        await DisplayAlert($"Вы выбрали устройство", $"{_selectedDevice.Name} [{_selectedDevice.Address}]", "OK");
-
-                        bool connectResult = await ConnectToDeviceAsync(_selectedDevice);
-                         await DisplayAlert("Ожидайте подключения", $"{_selectedDevice.Name} [{_selectedDevice.Address}]", "OK");
-                        if (connectResult)
-                        {
-                            await DisplayAlert("Успех", $"Подключение к {_selectedDevice.Name} установлено!", "OK");
-                        }
-                        else
-                        {
-                            await DisplayAlert("Ошибка", $"Не удалось подключиться к {_selectedDevice.Name}.", "OK");
-                        }
+                    // 🔁 Сброс выбора, чтобы SelectionChanged снова срабатывал
+                    DevicesList.SelectedItem = null;
 #endif
         }
+
+
+
 
 
 
@@ -391,6 +293,8 @@ namespace DronApp1
         {
             try
             {
+
+            await DisplayAlert("Ожидайте подключения", $"{_selectedDevice.Name} [{_selectedDevice.Address}]", "OK");
                 var device = _adapter.GetRemoteDevice(deviceInfo.Address);
 
                 _adapter.CancelDiscovery();
@@ -405,6 +309,8 @@ namespace DronApp1
             catch (Exception ex)
             {
                 await DisplayAlert("Ошибка подключения", $"Ошибка: {ex.Message}", "OK");
+                 DevicesList.SelectedItem = null;
+                  //_selectedDevice = null;
                 return false;
             }
         }
@@ -440,6 +346,10 @@ namespace DronApp1
             }
         }
 
+
+
+
+
         public class DeviceInfo
         {
             public string Name { get; set; }
@@ -465,38 +375,6 @@ namespace DronApp1
         }
 
 
-        // public class DeviceInfo : INotifyPropertyChanged
-        //{
-        //    private bool _isSelected;
-
-        //    public string Name { get; set; }
-        //    public string Address { get; set; }
-
-        //    public bool IsSelected
-        //    {
-        //        get => _isSelected;
-        //        set
-        //        {
-        //            if (_isSelected != value)
-        //            {
-        //                _isSelected = value;
-        //                OnPropertyChanged(nameof(IsSelected));
-        //            }
-        //        }
-        //    }
-
-        //    public event PropertyChangedEventHandler PropertyChanged;
-
-        //    protected void OnPropertyChanged(string propertyName) =>
-        //        PropertyChanged?.Invoke(this, new PropertyChangedEventArgs(propertyName));
-
-        //    public override string ToString() => $"{Name} [{Address}]";
-
-        //    public override bool Equals(object obj) => obj is DeviceInfo other && Address == other.Address;
-
-        //    public override int GetHashCode() => Address.GetHashCode();
-        //}
-
 
 
 
@@ -506,14 +384,6 @@ namespace DronApp1
 
 
 #endif
-
-
-
-
-
-
-
-
 
 
         public async void ReceiverData(object sender, EventArgs e)//Bluetooth connect
@@ -949,4 +819,337 @@ namespace DronApp1
 
 
 /////////////////////////////////////////
+////////////////////////////////////////////
 
+
+// Updated method to fix CS8601: Possible null reference assignment.
+//        private async void OnDeviceSelected(object sender, SelectionChangedEventArgs e)
+//        {
+//#if ANDROID
+//            // Получаем текущее выбранное устройство
+//            var clickedDevice = e.CurrentSelection.FirstOrDefault() as DeviceInfo;
+
+//            // Если кликнули повторно по уже выбранному — снимаем выбор
+//            if (_selectedDevice != null && clickedDevice != null && _selectedDevice.Address == clickedDevice.Address)
+//            {
+//                DevicesList.SelectedItem = null;   // Сброс визуального выделения
+//                _selectedDevice = null;            // Обнуляем переменную выбранного устройства
+
+//                // Если ты используешь цвет/рамку для визуального выделения — здесь можно сбросить IsSelected (если такое есть)
+//                if (clickedDevice != null)
+//                {
+//                    clickedDevice.IsSelected = false; // если ты используешь такую логику
+//                }
+
+//                // Обновим привязку, чтобы визуально обновилось
+//                DevicesList.ItemsSource = null;
+//                DevicesList.ItemsSource = _devices;
+
+//                await DisplayAlert("Отмена", "Выбор устройства отменён", "OK");
+//                return;
+//            }
+
+//            // Снимаем выделение с предыдущего устройства, если есть
+//            if (_selectedDevice != null)
+//            {
+//                _selectedDevice.IsSelected = false;
+//            }
+
+//            // Обновляем текущий выбор
+//            if (clickedDevice != null) // Ensure clickedDevice is not null
+//            {
+//                _selectedDevice = clickedDevice;
+
+//                // Устанавливаем новый флаг выбора (если используется для визуального отображения)
+//                _selectedDevice.IsSelected = true;
+
+//                // Обновим визуальное выделение
+//                DevicesList.ItemsSource = null;
+//                DevicesList.ItemsSource = _devices;
+
+//                await DisplayAlert("Вы выбрали устройство", $"{_selectedDevice.Name} [{_selectedDevice.Address}]", "OK");
+
+//                bool connectResult = await ConnectToDeviceAsync(_selectedDevice);
+//                await DisplayAlert("Ожидайте подключения", $"{_selectedDevice.Name} [{_selectedDevice.Address}]", "OK");
+
+//                if (connectResult)
+//                {
+//                    await DisplayAlert("Успех", $"Подключение к {_selectedDevice.Name} установлено!", "OK");
+//                }
+//                else
+//                {
+//                    await DisplayAlert("Ошибка", $"Не удалось подключиться к {_selectedDevice.Name}.", "OK");
+//                }
+//            }
+//            else
+//            {
+//                await DisplayAlert("Ошибка", "Устройство не выбрано!", "OK");
+//            }
+//#endif
+//        }
+
+
+
+
+
+
+
+
+
+
+//        private async void OnDeviceSelected(object sender, SelectionChangedEventArgs e)
+//        {
+//#if ANDROID
+//    // Получаем текущее выбранное устройство
+//    var clickedDevice = e.CurrentSelection.FirstOrDefault() as DeviceInfo;
+
+//    // Если кликнули повторно по уже выбранному — снимаем выбор
+//    if (_selectedDevice != null && clickedDevice != null && _selectedDevice.Address == clickedDevice.Address)
+//    {
+//        DevicesList.SelectedItem = null;   // Сброс визуального выделения
+//        _selectedDevice = null;            // Обнуляем переменную выбранного устройства
+
+//        // Если ты используешь цвет/рамку для визуального выделения — здесь можно сбросить IsSelected (если такое есть)
+//        if (clickedDevice != null)
+//        {
+//            clickedDevice.IsSelected = false; // если ты используешь такую логику
+//        }
+
+//        // Обновим привязку, чтобы визуально обновилось
+//        DevicesList.ItemsSource = null;
+//        DevicesList.ItemsSource = _devices;
+
+//        await DisplayAlert("Отмена", "Выбор устройства отменён", "OK");
+//        return;
+//    }
+
+//    // Снимаем выделение с предыдущего устройства, если есть
+//    if (_selectedDevice != null)
+//    {
+//        _selectedDevice.IsSelected = false;
+//    }
+
+//    // Обновляем текущий выбор
+//    _selectedDevice = clickedDevice;
+
+//    if (_selectedDevice == null)
+//    {
+//        await DisplayAlert("Ошибка", "Устройство не выбрано!", "OK");
+//        return;
+//    }
+
+//    // Устанавливаем новый флаг выбора (если используется для визуального отображения)
+//    _selectedDevice.IsSelected = true;
+
+//    // Обновим визуальное выделение
+//    DevicesList.ItemsSource = null;
+//    DevicesList.ItemsSource = _devices;
+
+//    await DisplayAlert("Вы выбрали устройство", $"{_selectedDevice.Name} [{_selectedDevice.Address}]", "OK");
+
+//    bool connectResult = await ConnectToDeviceAsync(_selectedDevice);
+//    await DisplayAlert("Ожидайте подключения", $"{_selectedDevice.Name} [{_selectedDevice.Address}]", "OK");
+
+//    if (connectResult)
+//    {
+//        await DisplayAlert("Успех", $"Подключение к {_selectedDevice.Name} установлено!", "OK");
+//    }
+//    else
+//    {
+//        await DisplayAlert("Ошибка", $"Не удалось подключиться к {_selectedDevice.Name}.", "OK");
+//    }
+//#endif
+//        }
+
+
+
+
+
+//        private async void OnDeviceSelected(object sender, SelectionChangedEventArgs e)
+//        {
+//#if ANDROID
+//    // Получаем текущее выбранное устройство
+//    var clickedDevice = e.CurrentSelection.FirstOrDefault() as DeviceInfo;
+
+//    // Если кликнули повторно по уже выбранному — снимаем выбор
+//    if (_selectedDevice != null && clickedDevice != null && _selectedDevice.Address == clickedDevice.Address)
+//    {
+//        DevicesList.SelectedItem = null;   // Сброс выделения
+//        _selectedDevice = null;            // Обнуляем переменную
+//        await DisplayAlert("Отмена", "Выбор устройства отменён", "OK");
+//        return;
+//    }
+
+//    // Обновляем текущий выбор
+//    _selectedDevice = clickedDevice;
+
+//    if (_selectedDevice == null)
+//    {
+//        await DisplayAlert("Ошибка", "Устройство не выбрано!", "OK");
+//        return;
+//    }
+
+//    await DisplayAlert("Вы выбрали устройство", $"{_selectedDevice.Name} [{_selectedDevice.Address}]", "OK");
+
+//    bool connectResult = await ConnectToDeviceAsync(_selectedDevice);
+//    await DisplayAlert("Ожидайте подключения", $"{_selectedDevice.Name} [{_selectedDevice.Address}]", "OK");
+
+//    if (connectResult)
+//    {
+//        await DisplayAlert("Успех", $"Подключение к {_selectedDevice.Name} установлено!", "OK");
+//    }
+//    else
+//    {
+//        await DisplayAlert("Ошибка", $"Не удалось подключиться к {_selectedDevice.Name}.", "OK");
+//    }
+//#endif
+//        }
+
+
+///////////////////////////////////////////////////////
+///////////////////////////////////////////////
+
+
+// public class DeviceInfo : INotifyPropertyChanged
+//{
+//    private bool _isSelected;
+
+//    public string Name { get; set; }
+//    public string Address { get; set; }
+
+//    public bool IsSelected
+//    {
+//        get => _isSelected;
+//        set
+//        {
+//            if (_isSelected != value)
+//            {
+//                _isSelected = value;
+//                OnPropertyChanged(nameof(IsSelected));
+//            }
+//        }
+//    }
+
+//    public event PropertyChangedEventHandler PropertyChanged;
+
+//    protected void OnPropertyChanged(string propertyName) =>
+//        PropertyChanged?.Invoke(this, new PropertyChangedEventArgs(propertyName));
+
+//    public override string ToString() => $"{Name} [{Address}]";
+
+//    public override bool Equals(object obj) => obj is DeviceInfo other && Address == other.Address;
+
+//    public override int GetHashCode() => Address.GetHashCode();
+//}
+
+
+
+
+
+
+//        public class DeviceInfo : INotifyPropertyChanged
+//{
+//    private bool _isSelected;
+
+//    public string Name { get; set; }
+//    public string Address { get; set; }
+
+//    public bool IsSelected
+//    {
+//        get => _isSelected;
+//        set
+//        {
+//            if (_isSelected != value)
+//            {
+//                _isSelected = value;
+//                OnPropertyChanged(nameof(IsSelected));
+//            }
+//        }
+//    }
+
+//    public event PropertyChangedEventHandler PropertyChanged;
+
+//    protected void OnPropertyChanged(string propertyName) =>
+//        PropertyChanged?.Invoke(this, new PropertyChangedEventArgs(propertyName));
+
+//    public override string ToString() => $"{Name} [{Address}]";
+
+//    public override bool Equals(object obj) => obj is DeviceInfo other && Address == other.Address;
+
+//    public override int GetHashCode() => Address.GetHashCode();
+//}
+
+
+//      private async Task DisconnectFromDeviceAsync(DeviceInfo device)
+//{
+
+//    try
+//    {
+//        if (socket_global != null && socket_global.IsConnected)
+//        {
+//            await Task.Run(() =>
+//            {
+//                socket_global.Close();  // Закрываем соединение
+//            });
+
+//            await DisplayAlert("Отключение", $"Отключено от {device.Name} [{device.Address}].", "OK");
+//            socket_global = null;  // Очистка глобального сокета после отключения
+//        }
+//        else
+//        {
+//            await DisplayAlert("Ошибка", "Не удалось найти активное подключение.", "OK");
+//        }
+//    }
+//    catch (Exception ex)
+//    {
+//        await DisplayAlert("Ошибка", $"Ошибка отключения: {ex.Message}", "OK");
+//    }
+//}
+
+
+//private async void OnDeviceSelected(object sender, SelectionChangedEventArgs e)
+//{
+//#if ANDROID
+//    // Получаем выбранное устройство
+//    var clickedDevice = e.CurrentSelection.FirstOrDefault() as DeviceInfo;
+//     //   await DisplayAlert("Клик!", "Вы кликнули на устройство!", "OK");
+//    if (_selectedDevice != null && clickedDevice != null && _selectedDevice.Address == clickedDevice.Address)
+//    {
+//        // Если кликнули по уже выбранному устройству, отключаем и сбрасываем выбор
+//        await DisconnectFromDeviceAsync(_selectedDevice);
+//        DevicesList.SelectedItem = null; // Сбрасываем визуальное выделение
+//        _selectedDevice.IsSelected = false; // Обнуляем флаг выбора
+//        _selectedDevice = null;
+//        return;
+//    }
+
+//    // Если устройство не выбрано, устанавливаем новое
+//    if (_selectedDevice != null)
+//    {
+//        _selectedDevice.IsSelected = false; // Снимаем выделение с предыдущего устройства
+//    }
+
+//    _selectedDevice = clickedDevice;
+//    _selectedDevice.IsSelected = true; // Устанавливаем флаг выделения для нового устройства
+
+//    if (_selectedDevice == null)
+//    {
+//        await DisplayAlert("Ошибка", "Устройство не выбрано!", "OK");
+//        return;
+//    }
+
+//    await DisplayAlert("Вы выбрали устройство", $"{_selectedDevice.Name} [{_selectedDevice.Address}]", "OK");
+
+//    bool connectResult = await ConnectToDeviceAsync(_selectedDevice);
+//    await DisplayAlert("Ожидайте подключения", $"{_selectedDevice.Name} [{_selectedDevice.Address}]", "OK");
+
+//    if (connectResult)
+//    {
+//        await DisplayAlert("Успех", $"Подключение к {_selectedDevice.Name} установлено!", "OK");
+//    }
+//    else
+//    {
+//        await DisplayAlert("Ошибка", $"Не удалось подключиться к {_selectedDevice.Name}.", "OK");
+//    }
+//#endif
+//}
