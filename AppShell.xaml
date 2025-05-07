@@ -8,8 +8,31 @@
     Title="DronApp1">
 
     <ShellContent
-        Title="Home"
+        Title="Setting"
         ContentTemplate="{DataTemplate local:MainPage}"
-        Route="MainPage" />
+        Route="MainPage"      
+      />
+
+
+    <ContentPage
+        
+        xmlns="http://schemas.microsoft.com/dotnet/2021/maui"
+        xmlns:x="http://schemas.microsoft.com/winfx/2009/xaml"
+        x:Name="MainPage"
+        Title="Bluetooth"
+  
+        
+        BackgroundColor="{DynamicResource PageBackgroundColor}">
+        <ContentPage.Content>
+           
+               <VerticalStackLayout>
+                
+                <Button  Margin="25" Text="clike me" BackgroundColor="DarkRed"  Clicked="OnMenuItemClicked"/>
+                
+            </VerticalStackLayout>
+          
+        </ContentPage.Content>
+    </ContentPage>
+
 
 </Shell>

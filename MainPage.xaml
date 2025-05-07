@@ -2,11 +2,30 @@
             xmlns:x="http://schemas.microsoft.com/winfx/2009/xaml"  
             x:Class="DronApp1.MainPage">  
 
-   <VerticalStackLayout Padding="25" BackgroundColor="Khaki">
+   <VerticalStackLayout Padding="25" BackgroundColor="DimGrey">
+
+       
+
+            <!-- ✅ Горизонтальное размещение двух кнопок -->
+        <!-- Использование Grid для горизонтального размещения кнопок -->
+        <Grid Margin="5" ColumnDefinitions="*,*" ColumnSpacing="10">
+            <Button Text="ON_OFF to Bluetooth"
+                    x:Name="Counter5"
+                    TextColor="BlanchedAlmond"
+                    BackgroundColor="Blue"
+                    Clicked="On_Off_Bluetooth"
+                    Grid.Column="0"/>
+
+            <Button Text="Scan devices"
+                    TextColor="BlanchedAlmond"
+                    BackgroundColor="ForestGreen"
+                    Clicked="OnScanClicked"
+                    Grid.Column="1"/>
+        </Grid>
 
 
-        <Button Margin="5" Text="ON_OFF to Bluetooth"  x:Name="Counter5" TextColor="Red" BackgroundColor="Blue"  Clicked="On_Off_Bluetooth"/>
-        <Button Margin="5" Text="Scan devices"  TextColor="Red" BackgroundColor="ForestGreen"  Clicked="OnScanClicked" />
+        <!--<Button Margin="5" Text="ON_OFF to Bluetooth"  x:Name="Counter5" TextColor="BlanchedAlmond"  BackgroundColor="Blue"  Clicked="On_Off_Bluetooth"/>
+        <Button Margin="5" Text="Scan devices"  TextColor="BlanchedAlmond"  BackgroundColor="ForestGreen"  Clicked="OnScanClicked" />-->
 
        
         <!--<CollectionView x:Name="DevicesList"  
@@ -23,7 +42,7 @@
        </CollectionView>-->
 
 
-        <CollectionView x:Name="DevicesList"
+        <!--<CollectionView x:Name="DevicesList"
                 SelectionChanged="OnDeviceSelected"
                 SelectionMode="Single">
             <CollectionView.ItemTemplate>
@@ -36,12 +55,147 @@
                     </Border>
                 </DataTemplate>
             </CollectionView.ItemTemplate>
+        </CollectionView>-->
+
+
+
+        <!--<CollectionView x:Name="DevicesList"
+                SelectionChanged="OnDeviceSelected"
+                SelectionMode="Single">
+            <CollectionView.ItemTemplate>
+                <DataTemplate>
+                    <Border Stroke="MidnightBlue"
+                    StrokeShape="RoundRectangle 10"
+                    Margin="5"
+                    Padding="5"
+                    StrokeThickness="2">
+                        <Border.Triggers>
+                            --><!-- ✅ ДОБАВЛЕНО: Условие выделения --><!--
+                            <DataTrigger TargetType="Border" Binding="{Binding IsSelected}" Value="True">
+                                <Setter Property="Stroke" Value="Red" />
+                                <Setter Property="StrokeThickness" Value="3" />
+                            </DataTrigger>
+                        </Border.Triggers>
+                        <VerticalStackLayout>
+                            <Label FontSize="20" TextColor="Black" Text="{Binding DisplayName}" />
+                            <Label FontSize="16" TextColor="Gray" Text="{Binding DisplayStatus}" />
+                        </VerticalStackLayout>
+                    </Border>
+                </DataTemplate>
+            </CollectionView.ItemTemplate>
+        </CollectionView>-->
+
+
+        <!--<CollectionView x:Name="DevicesList"
+                SelectionMode="None">
+            --><!-- ❗️Отключаем выбор --><!--
+            <CollectionView.ItemTemplate>
+                <DataTemplate>
+                    <Border Stroke="DarkRed"
+                    StrokeShape="RoundRectangle 10"
+                    Margin="5"
+                    Padding="5"
+                    StrokeThickness="2">
+                        <Border.GestureRecognizers>
+                            <TapGestureRecognizer Command="{Binding Source={x:Reference DevicesList}, Path=BindingContext.DeviceTappedCommand}" 
+                                          CommandParameter="{Binding .}" />
+                        </Border.GestureRecognizers>
+
+                        <Border.Triggers>
+                            <DataTrigger TargetType="Border" Binding="{Binding IsSelected}" Value="True">
+                                <Setter Property="Stroke" Value="Green" />
+                                <Setter Property="StrokeThickness" Value="3" />
+                            </DataTrigger>
+                        </Border.Triggers>
+
+                        <VerticalStackLayout>
+                            <Label FontSize="20" TextColor="Black" Text="{Binding DisplayName}" />
+                            <Label FontSize="16" TextColor="Gray" Text="{Binding DisplayStatus}" />
+                        </VerticalStackLayout>
+                    </Border>
+                </DataTemplate>
+            </CollectionView.ItemTemplate>
+        </CollectionView>-->
+
+
+        <CollectionView x:Name="DevicesList"
+                SelectionMode="None">
+            <CollectionView.ItemTemplate>
+                <DataTemplate>
+                    <Border Stroke="DarkRed"
+                    StrokeShape="RoundRectangle 10"
+                    Margin="5"
+                    Padding="5"
+                    StrokeThickness="2">
+                        <Border.GestureRecognizers>
+                            <TapGestureRecognizer Command="{Binding Source={x:Reference DevicesList}, Path=BindingContext.DeviceTappedCommand}" 
+                                          CommandParameter="{Binding .}" />
+                        </Border.GestureRecognizers>
+
+                        <Border.Triggers>
+                            <DataTrigger TargetType="Border" Binding="{Binding IsSelected}" Value="True">
+                                <Setter Property="Stroke" Value="Green" />
+                                <Setter Property="StrokeThickness" Value="3" />
+                            </DataTrigger>
+                        </Border.Triggers>
+
+                        <VerticalStackLayout>
+                            <Label FontSize="20" TextColor="Black" Text="{Binding DisplayName}" />
+
+                            <!-- ✅ Обновлённый Label со стилем и триггерами -->
+                            <Label FontSize="16"
+                           FontAttributes="Bold"
+                           Text="{Binding DisplayStatus}">
+                                <Label.Triggers>
+                                    <DataTrigger TargetType="Label" Binding="{Binding DisplayStatus}" Value="Подключено">
+                                        <Setter Property="TextColor" Value="Green" />
+                                    </DataTrigger>
+                                    <DataTrigger TargetType="Label" Binding="{Binding DisplayStatus}" Value="Не подключено">
+                                        <Setter Property="TextColor" Value="Gray" />
+                                    </DataTrigger>
+                                </Label.Triggers>
+                            </Label>
+                        </VerticalStackLayout>
+                    </Border>
+                </DataTemplate>
+            </CollectionView.ItemTemplate>
         </CollectionView>
 
 
 
+        <!--<CollectionView x:Name="DevicesList"  
+                       SelectionChanged="OnDeviceSelected"  
+                       SelectionMode="Single">  
+           <CollectionView.ItemTemplate>  
+               <DataTemplate>  
+                   <Border x:Name="DeviceBorder"  
+                           Stroke="MidnightBlue"  
+                           StrokeThickness="2"  
+                           StrokeShape="RoundRectangle 10"  
+                           Margin="5"  
+                           Padding="5">  
 
-        <Button Margin="5" Text="ReceiverData"  x:Name="Counter4" TextColor="Red" BackgroundColor="#1B1919"  Clicked="ReceiverData"/>
+                       --><!-- Replace VisualStateManager with Triggers for compatibility --><!--
+                       <Border.Triggers>  
+                           <DataTrigger TargetType="Border"  
+                                        Binding="{Binding IsSelected, Source={RelativeSource AncestorType={x:Type CollectionView}}}"  
+                                        Value="True">  
+                               <Setter Property="Stroke" Value="Red" />  
+                               <Setter Property="StrokeThickness" Value="3" />  
+                           </DataTrigger>  
+                       </Border.Triggers>  
+
+                       <VerticalStackLayout>  
+                           <Label FontSize="20" TextColor="Black" Text="{Binding DisplayName}" />  
+                           <Label FontSize="16" TextColor="Gray" Text="{Binding DisplayStatus}" />  
+                       </VerticalStackLayout>  
+                   </Border>  
+               </DataTemplate>  
+           </CollectionView.ItemTemplate>  
+        </CollectionView>-->
+
+
+        <!--<Button Margin="5" Text="ReceiverData"  x:Name="Counter4" TextColor="BlanchedAlmond"  BackgroundColor="#1B1919"  Clicked="ReceiverData"/>-->
       
 
         <!--<Label x:Name="label4"
@@ -58,13 +212,13 @@
                HorizontalTextAlignment="Start"
        />-->
 
-        <Border
+        <!--<Border
                 Stroke="#0B0101"
                 StrokeThickness="2"
                 StrokeShape="RoundRectangle 10"
                 BackgroundColor="White"
                 Padding="10"
-                Margin="10">
+                Margin="5">
 
                     <Label x:Name="label4"
                        Text="Empty text to receive data"
@@ -72,26 +226,154 @@
                        HorizontalOptions="Fill"
                        VerticalOptions="Start"
                        LineBreakMode="WordWrap"
-                       TextColor="Black"
+                       TextColor="DarkBlue"
                        HeightRequest="150"
                        MaxLines="8"
                        VerticalTextAlignment="Start"
                        HorizontalTextAlignment="Start" />   
-        </Border>
-       
-       
-       
+        </Border>-->
 
-        <Button Margin="5" Text="TransmitterData"  x:Name="Counter1" TextColor="Red" BackgroundColor="#1B1919"  Clicked="TransmitterData"/>
-       
-       <Entry x:Name="entry1" 
+        <!--<Border
+    Stroke="#0B0101"
+    StrokeThickness="2"
+    StrokeShape="RoundRectangle 10"
+    BackgroundColor="White"
+    Padding="10"
+    Margin="5"
+    HeightRequest="180">
+            --><!-- Можно подкорректировать под нужную высоту --><!--
+
+            <ScrollView x:Name="scrollView" VerticalOptions="FillAndExpand">
+                <Label x:Name="label4"
+               Text="Empty text to receive data"
+               FontSize="18"
+               TextColor="DarkBlue"
+               LineBreakMode="WordWrap"
+               VerticalTextAlignment="Start"
+               HorizontalTextAlignment="Start" />
+            </ScrollView>
+        </Border>-->
+
+        <Border
+        Stroke="#0B0101"
+        StrokeThickness="2"
+        StrokeShape="RoundRectangle 10"
+        BackgroundColor="White"
+        Padding="10"
+        Margin="5"
+        HeightRequest="180">
+
+            <ScrollView x:Name="scrollView" VerticalOptions="Fill">
+                <Label x:Name="label4"
+                   Text="Empty text to receive data"
+                   FontSize="14"
+                   TextColor="DarkBlue"
+                   LineBreakMode="WordWrap"
+                   VerticalTextAlignment="Start"
+                   HorizontalTextAlignment="Start" />
+            </ScrollView>
+
+        </Border>
+
+
+
+        <!--<Border
+        Stroke="#0B0101"
+        StrokeThickness="2"
+        StrokeShape="RoundRectangle 10"
+        BackgroundColor="White"
+        Padding="10"
+        Margin="5"
+        HorizontalOptions="Fill"
+        VerticalOptions="Start">
+
+            <VerticalStackLayout HorizontalOptions="Fill" VerticalOptions="Fill">
+                <Label x:Name="label4"
+                   Text="Empty text to receive data"
+                   FontSize="18"
+                   TextColor="Black"
+                   LineBreakMode="WordWrap"
+                   HorizontalTextAlignment="Start"
+                   VerticalTextAlignment="Start"
+                   MaxLines="8" />
+            </VerticalStackLayout>  
+        </Border>-->
+
+
+        <!--<Button Margin="5" Text="TransmitterData"  x:Name="Counter1" TextColor="BlanchedAlmond"  BackgroundColor="#1B1919"  Clicked="TransmitterData"/>-->
+
+
+        <!--<Grid Margin="5" ColumnDefinitions="*,*" ColumnSpacing="10">
+            <Button Margin="5" 
+            Text="ReceiverData"  
+            x:Name="Counter4" 
+            TextColor="BlanchedAlmond"  
+            BackgroundColor="#1B1919"  
+            Clicked="ReceiverData"
+            Grid.Column="0" />
+
+            <Button Margin="5" 
+            Text="TransmitterData"  
+            x:Name="Counter1" 
+            TextColor="BlanchedAlmond"  
+            BackgroundColor="#1B1919"  
+            Clicked="TransmitterData"
+            Grid.Column="1" />
+        </Grid>-->
+
+        <Grid Margin="5" ColumnDefinitions="*,Auto,*" ColumnSpacing="10">
+            <!-- ReceiverData -->
+            <Button Margin="5" 
+            Text="Receiver"  
+            x:Name="Counter4" 
+            TextColor="BlanchedAlmond"  
+            BackgroundColor="#1B1919"  
+            Clicked="ReceiverData"
+            Grid.Column="0" />
+
+            <!-- Clear Data -->
+            <Button Margin="5"
+            Text="Clear Data"
+            TextColor="BlanchedAlmond"
+            BackgroundColor="#501414"
+            Clicked="ClearData"
+            Grid.Column="1" />
+
+            <!-- TransmitterData -->
+            <Button Margin="5" 
+            Text="Transmitter"  
+            x:Name="Counter1" 
+            TextColor="BlanchedAlmond"  
+            BackgroundColor="#1B1919"  
+            Clicked="TransmitterData"
+            Grid.Column="2" />
+        </Grid>
+
+        <!--<Entry x:Name="entry1" 
                    Placeholder="Enter text to transfer data"
-                    PlaceholderColor="DimGrey"
+                    PlaceholderColor="BlanchedAlmond"
                    FontSize="18" 
                    HorizontalOptions="Fill"
                    VerticalOptions="Fill"              
                    TextColor="Black"   
-             />
+             />-->
+
+        <Border Stroke="Gray" 
+        StrokeThickness="1" 
+        Padding="10" 
+       
+        Margin="5">
+            <Entry x:Name="entry1"
+           Placeholder="Enter text to transfer data"
+           PlaceholderColor="BlanchedAlmond"
+           FontSize="18"
+           TextColor="Black"
+           HorizontalOptions="Fill"
+           VerticalOptions="Center" />
+        </Border>
+
+      
+
         <!--<Button Margin="5" Text="SendData"  x:Name="Counter2" TextColor="Red" BackgroundColor="#1B1919"  Clicked="SendData"/>
         <Label x:Name="label2" Text="Empty string of senddata"
                    FontSize="22" 

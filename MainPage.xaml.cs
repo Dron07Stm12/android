@@ -22,6 +22,7 @@ using DronApp1;
 using System.Net.Sockets;
 using System.ComponentModel;
 using System.Text;
+using System.Windows.Input;
 
 
 #if ANDROID// --- Только для Android (директива препроцессора) ---
@@ -52,66 +53,24 @@ namespace DronApp1
 
         public string receivedData2 = null;
 
-
+        public ICommand DeviceTappedCommand { get; }
 
         public MainPage()
         {
             InitializeComponent(); // Инициализация всех компонентов страницы, созданных в XAML
 
+
 #if ANDROID
+
+          DeviceTappedCommand = new Command<DeviceInfo>(async (device) => await OnDeviceTapped(device));
+          BindingContext = this;
+
+
             //Привязывает коллекцию _devices(тип ObservableCollection<DeviceInfo>) к визуальному элементу CollectionView.
             DevicesList.ItemsSource = _devices;// Устанавливаем источник данных для списка устройств — нашу коллекцию _devices
 
 
             _adapter = BluetoothAdapter.DefaultAdapter;// Получаем ссылку на стандартный Bluetooth-адаптер устройства
-
-
-            // Действие при обнаружении нового устройства:
-            // Проверяем, нет ли уже устройства с таким же адресом (уникальный идентификатор MAC)
-            //_receiver = new DeviceReceiver(deviceInfo =>
-            //{
-            //    if (!_devices.Any(d => d.Address == deviceInfo.Address))
-            //    {
-            //      // Если устройство не найдено в списке, добавляем его
-            //        _devices.Add(deviceInfo);
-            //    }
-            //});
-
-            //////////////////////////////можно использовать  делегат
-            //_receiver = new DeviceReceiver(delegate (DeviceInfo deviceInfo)
-            //{
-
-            //    if (!_devices.Any(delegate (DeviceInfo deviceInfo2)
-            //    {
-
-            //        return deviceInfo2.Address == deviceInfo.Address;
-            //    }))
-            //    {
-
-            //        _devices.Add(deviceInfo);
-            //    }
-
-            //});
-
-            //////////////////////////////или так использовать  делегат
-            //_receiver = new DeviceReceiver(delegate (DeviceInfo deviceInfo)
-            //{
-
-            //    Func<DeviceInfo, bool> predicate = delegate (DeviceInfo deviceInfo2)
-            //    {
-            //        return deviceInfo2.Address == deviceInfo.Address;
-            //    };
-
-            //    if (!_devices.Any(predicate))
-            //    {
-
-
-            //        _devices.Add(deviceInfo);
-
-
-            //    }
-
-            //});
 
 
             //_action — это делегат, то есть указатель на функцию, принимающую один аргумент типа DeviceInfo и ничего не возвращающую(void).
@@ -133,27 +92,104 @@ namespace DronApp1
 
                 }
             };
-            //Создаёт экземпляр класса DeviceReceiver, который наследует BroadcastReceiver
-            //и будет получать события, когда найдено новое устройство.
+
+            //Создаёт экземпляр класса DeviceReceiver, который наследует BroadcastReceiver          
             //В конструктор DeviceReceiver передаётся делегат( Action), который вызывается каждый раз,
             //когда найдено новое устройство.
             //Этот делегат будет вызывать метод, который проверяет, есть ли уже устройство с таким адресом в списке _devices.
-            //Создаёт приёмник, которому передаётся  делегат _action, и который будет вызываться каждый раз,
-            // когда Android обнаруживает новое Bluetooth - устройство.
-
+            // // 👉 Передаём эту логику в приёмник
             _receiver = new DeviceReceiver(_action);
 
             /////////////////////////////
-            // Регистрируем наш приемник на события нахождения новых Bluetooth устройств
+            /////Создаёт приёмник, которому передаётся  делегат _action, и который будет вызываться каждый раз,
+            // когда Android обнаруживает новое Bluetooth - устройство.
+            // Регистрируем наш приемник на события нахождения новых Bluetooth устройств - "по сути это регистрация на событие".
             // (BluetoothDevice.ActionFound) и передаём ему делегат, который будет вызван при нахождении устройства
             // (в данном случае это анонимный метод, который добавляет устройство в список _devices)
             //Регистрирует твой приёмник в системе Android, чтобы получать событие BluetoothDevice.ActionFound — 
             //оно возникает каждый раз, когда найдено новое устройство.
-
-
+            // 👉 Регистрируем приёмник на системное событие: "устройство найдено"
             Application.Context.RegisterReceiver(_receiver, new IntentFilter(BluetoothDevice.ActionFound));
 #endif
         }
+
+
+#if ANDROID
+        //private async Task OnDeviceTapped(DeviceInfo tappedDevice)
+        //{
+
+        //            // Сброс предыдущего выделения
+        //            foreach (var device in _devices)
+        //                device.IsSelected = false;
+
+        //            if (_selectedDevice != null && tappedDevice.Address == _selectedDevice.Address)
+        //            {
+        //                await DisconnectFromDeviceAsync(_selectedDevice);
+        //                _selectedDevice = null;
+        //                return;
+        //            }
+
+        //            _selectedDevice = tappedDevice;
+        //            bool connected = await ConnectToDeviceAsync(_selectedDevice);
+
+        //            if (connected)
+        //            {
+        //                _selectedDevice.IsSelected = true;
+        //                await DisplayAlert("Успех", $"Подключено к {_selectedDevice.Name}", "OK");
+        //            }
+        //            else
+        //            {
+        //                await DisplayAlert("Ошибка", $"Не удалось подключиться к {_selectedDevice.Name}", "OK");
+        //                _selectedDevice = null;
+        //            }
+
+        //}
+
+        private async Task OnDeviceTapped(DeviceInfo tappedDevice)
+{
+    // Сброс всех выделений
+    foreach (var device in _devices)
+        device.IsSelected = false;
+
+    // Если повторное нажатие — отключаем
+    if (_selectedDevice != null && tappedDevice.Address == _selectedDevice.Address)
+    {
+        await DisconnectFromDeviceAsync(_selectedDevice);
+        _selectedDevice = null;
+        return;
+    }
+
+    _selectedDevice = tappedDevice;
+    bool connected = await ConnectToDeviceAsync(_selectedDevice);
+
+    if (connected)
+    {
+        _selectedDevice.IsSelected = true;
+
+        // ✅ Оставляем только подключённое устройство в списке
+        var connectedDevice = _selectedDevice;
+        _devices.Clear();
+        _devices.Add(connectedDevice);
+
+        await DisplayAlert("Успех", $"Подключено к {_selectedDevice.Name}", "OK");
+    }
+    else
+    {
+        await DisplayAlert("Ошибка", $"Не удалось подключиться к {_selectedDevice.Name}", "OK");
+        _selectedDevice = null;
+    }
+}
+
+
+
+
+
+
+#endif
+
+
+
+
 
 
         // --- Метод для проверки всех необходимых разрешений --
@@ -172,40 +208,97 @@ namespace DronApp1
         }
 
         // --- Метод для обработки нажатия кнопки "Сканировать" ---
+//        private async void OnScanClicked(object sender, EventArgs e)
+//        {
+//#if ANDROID
+//           // 🔹 Проверка, есть ли у приложения разрешения на работу с Bluetooth (например, BLUETOOTH_SCAN, ACCESS_FINE_LOCATION и др.). 
+//            if (!await CheckPermissions())
+//            {
+//                await DisplayAlert("Ошибка", "Нет разрешений для работы с Bluetooth", "OK");
+//                return;
+//            }
+
+//          // 🔹 Очищает ObservableCollection<DeviceInfo>, чтобы показать только новые результаты после повторного сканирования.
+//            _devices.Clear();// Очищаем список устройств перед началом нового сканирования
+
+//         // 🔹 Проверяет, существует ли адаптер Bluetooth на устройстве.
+//         // 🔹 Если он null, то устройство не поддерживает Bluetooth.
+//            if (_adapter == null)
+//            {
+//                await DisplayAlert("Ошибка", "Bluetooth не поддерживается", "OK");
+//                return;
+//            }
+
+//          // 🔹 Если Bluetooth выключен — выводится сообщение.
+//          // 🔹 В MAUI нельзя напрямую включать Bluetooth — это должен сделать пользователь вручную в настройках.
+//            if (!_adapter.IsEnabled)
+//            {
+//                await DisplayAlert("Ошибка", "Bluetooth выключен", "OK");
+//                return;
+//            }
+
+//            // 🔹 Если адаптер уже ищет устройства, то сначала отменяем поиск.
+//            if (_adapter.IsDiscovering)
+//            {
+//                _adapter.CancelDiscovery();
+//            }
+
+//            await DisplayAlert("Поиск", "Начинаем сканирование устройств...", "OK");
+//            // 🔹 Запускаем процесс поиска Bluetooth-устройств           
+//            _adapter.StartDiscovery();
+//#endif
+//        }
+
         private async void OnScanClicked(object sender, EventArgs e)
         {
-#if ANDROID
+            #if ANDROID
+                if (!await CheckPermissions())
+                {
+                    await DisplayAlert("Ошибка", "Нет разрешений для работы с Bluetooth", "OK");
+                    return;
+                }
 
-            if (!await CheckPermissions())
-            {
-                await DisplayAlert("Ошибка", "Нет разрешений для работы с Bluetooth", "OK");
-                return;
-            }
+                // ✅ Сохраняем текущее подключённое устройство, если оно есть
+                DeviceInfo? savedConnectedDevice = _selectedDevice;
 
-            _devices.Clear();// Очищаем список устройств перед началом нового сканирования
+                _devices.Clear(); // 🔄 очищаем список перед сканированием
 
-            if (_adapter == null)
-            {
-                await DisplayAlert("Ошибка", "Bluetooth не поддерживается", "OK");
-                return;
-            }
+                if (_adapter == null)
+                {
+                    await DisplayAlert("Ошибка", "Bluetooth не поддерживается", "OK");
+                    return;
+                }
 
-            if (!_adapter.IsEnabled)
-            {
-                await DisplayAlert("Ошибка", "Bluetooth выключен", "OK");
-                return;
-            }
+                if (!_adapter.IsEnabled)
+                {
+                    await DisplayAlert("Ошибка", "Bluetooth выключен", "OK");
+                    return;
+                }
 
-            if (_adapter.IsDiscovering)
-            {
-                _adapter.CancelDiscovery();
-            }
+                if (_adapter.IsDiscovering)
+                {
+                    _adapter.CancelDiscovery();
+                }
 
-            await DisplayAlert("Поиск", "Начинаем сканирование устройств...", "OK");
-             // Запускаем процесс поиска Bluetooth-устройств
-            _adapter.StartDiscovery();
-#endif
+                await DisplayAlert("Поиск", "Начинаем сканирование устройств...", "OK");
+
+                _adapter.StartDiscovery();
+
+                // ✅ Повторно добавляем подключённое устройство (если оно всё ещё активно)
+                if (savedConnectedDevice != null && savedConnectedDevice.IsSelected)
+                {
+                    _devices.Add(savedConnectedDevice);
+                }
+            #endif
         }
+
+
+
+
+
+
+
+
 
         // --- Переопределение метода, вызываемого при уходе со страницы ---
         protected override void OnDisappearing()
@@ -303,92 +396,249 @@ namespace DronApp1
 
 
 
+//        private async void OnDeviceSelected(object sender, SelectionChangedEventArgs e)
+//        {
+//#if ANDROID
+//                    var selectedDevice = e.CurrentSelection.FirstOrDefault() as DeviceInfo;
+//                    if (selectedDevice == null)
+//                    { 
+    
+//                     DevicesList.SelectedItem = null;
+//                     return;
+//                    }
+       
+
+//                    if (_selectedDevice != null && selectedDevice.Address == _selectedDevice.Address)
+//                    {
+//                        // Повторный клик по уже выбранному устройству — отключение
+                        
+//                        await DisconnectFromDeviceAsync(_selectedDevice);
+//                        DevicesList.SelectedItem = null;
+//                        _selectedDevice = null;
+//                    }
+//                    else
+//                    {
+//                        // Новый выбор — подключение
+//                        _selectedDevice = selectedDevice;
+
+//                        bool connected = await ConnectToDeviceAsync(_selectedDevice);
+//                        if (connected)
+//                            await DisplayAlert("Успех", $"Подключено к {_selectedDevice.Name}", "OK");
+
+//                        else{ await DisplayAlert("Ошибка", $"Не удалось подключиться к {_selectedDevice.Name}", "OK");
+//                         DevicesList.SelectedItem = null;
+//                          _selectedDevice = null;
+//                        }
+                           
+//                    }
+
+//                    // 🔁 Сброс выбора, чтобы SelectionChanged снова срабатывал
+//                    DevicesList.SelectedItem = null;
+//#endif
+//        }
+
+
+        //private async void OnDeviceSelected(object sender, SelectionChangedEventArgs e)
+        //{
+        //    #if ANDROID
+        //        var selectedDevice = e.CurrentSelection.FirstOrDefault() as DeviceInfo;
+
+        //        if (selectedDevice == null)
+        //        {
+        //            DevicesList.SelectedItem = null;
+        //            return;
+        //        }
+
+        //        // Сброс предыдущего выбора
+        //        foreach (var device in _devices)
+        //            device.IsSelected = false;
+
+        //        if (_selectedDevice != null && selectedDevice.Address == _selectedDevice.Address)
+        //        {
+        //            await DisconnectFromDeviceAsync(_selectedDevice);
+        //            _selectedDevice.IsSelected = false;
+        //            _selectedDevice = null;
+        //            DevicesList.SelectedItem = null;
+        //            return;
+        //        }
+
+        //        _selectedDevice = selectedDevice;
+        //        bool connected = await ConnectToDeviceAsync(_selectedDevice);
+
+        //        if (connected)
+        //        {
+        //            _selectedDevice.IsSelected = true;
+        //            await DisplayAlert("Успех", $"Подключено к {_selectedDevice.Name}", "OK");
+        //        }
+        //        else
+        //        {
+        //            await DisplayAlert("Ошибка", $"Не удалось подключиться к {_selectedDevice.Name}", "OK");
+        //            _selectedDevice = null;
+        //        }
+
+        //        DevicesList.SelectedItem = null;
+        //    #endif
+        //}
+
+//        private async void OnDeviceSelected(object sender, SelectionChangedEventArgs e)
+//        {
+//#if ANDROID
+//    var selectedDevice = e.CurrentSelection.FirstOrDefault() as DeviceInfo;
+
+//    if (selectedDevice == null)
+//    {
+//        DevicesList.SelectedItem = null;
+//        return;
+//    }
+
+//    // Сброс предыдущего выбора
+//    foreach (var device in _devices)
+//        device.IsSelected = false;
+
+//    if (_selectedDevice != null && selectedDevice.Address == _selectedDevice.Address)
+//    {
+//        await DisconnectFromDeviceAsync(_selectedDevice);
+//        _selectedDevice.IsSelected = false;
+//        _selectedDevice = null;
+//        DevicesList.SelectedItem = null;
+//        return;
+//    }
+
+//    _selectedDevice = selectedDevice;
+//    bool connected = await ConnectToDeviceAsync(_selectedDevice);
+
+//    if (connected)
+//    {
+//        _selectedDevice.IsSelected = true;
+
+//        // ✅ Удаляем все остальные устройства из списка, оставляя только подключённое
+//        var connectedDevice = _selectedDevice;
+//        _devices.Clear();
+//        _devices.Add(connectedDevice);
+
+//        await DisplayAlert("Успех", $"Подключено к {_selectedDevice.Name}", "OK");
+//    }
+//    else
+//    {
+//        await DisplayAlert("Ошибка", $"Не удалось подключиться к {_selectedDevice.Name}", "OK");
+//        _selectedDevice = null;
+//    }
+
+//    DevicesList.SelectedItem = null;
+//#endif
+//        }
+
+
+
         private async void OnDeviceSelected(object sender, SelectionChangedEventArgs e)
         {
 #if ANDROID
-                    var selectedDevice = e.CurrentSelection.FirstOrDefault() as DeviceInfo;
-                    if (selectedDevice == null)
-                    { 
-    
-                     DevicesList.SelectedItem = null;
-                     return;
-                    }
-       
+    var selectedDevice = e.CurrentSelection.FirstOrDefault() as DeviceInfo;
 
-                    if (_selectedDevice != null && selectedDevice.Address == _selectedDevice.Address)
-                    {
-                        // Повторный клик по уже выбранному устройству — отключение
-                        
-                        await DisconnectFromDeviceAsync(_selectedDevice);
-                        DevicesList.SelectedItem = null;
-                        _selectedDevice = null;
-                    }
-                    else
-                    {
-                        // Новый выбор — подключение
-                        _selectedDevice = selectedDevice;
+    if (selectedDevice == null)
+    {
+        DevicesList.SelectedItem = null;
+        return;
+    }
 
-                        bool connected = await ConnectToDeviceAsync(_selectedDevice);
-                        if (connected)
-                            await DisplayAlert("Успех", $"Подключено к {_selectedDevice.Name}", "OK");
+    foreach (var device in _devices)
+        device.IsSelected = false;
 
-                        else{ await DisplayAlert("Ошибка", $"Не удалось подключиться к {_selectedDevice.Name}", "OK");
-                         DevicesList.SelectedItem = null;
-                          _selectedDevice = null;
-                        }
-                           
-                    }
+    if (_selectedDevice != null && selectedDevice.Address == _selectedDevice.Address)
+    {
+        await DisconnectFromDeviceAsync(_selectedDevice);
+        _selectedDevice.IsSelected = false;
+        _selectedDevice = null;
+        DevicesList.SelectedItem = null;
+        return;
+    }
 
-                    // 🔁 Сброс выбора, чтобы SelectionChanged снова срабатывал
-                    DevicesList.SelectedItem = null;
+    _selectedDevice = selectedDevice;
+    bool connected = await ConnectToDeviceAsync(_selectedDevice);
+
+    if (connected)
+    {
+        _selectedDevice.IsSelected = true;
+
+        // ✅ Оставляем только подключённое устройство
+        var connectedDevice = _selectedDevice;
+        _devices.Clear();
+        _devices.Add(connectedDevice);
+
+        await DisplayAlert("Успех", $"Подключено к {_selectedDevice.Name}", "OK");
+    }
+    else
+    {
+        await DisplayAlert("Ошибка", $"Не удалось подключиться к {_selectedDevice.Name}", "OK");
+        _selectedDevice = null;
+    }
+
+    DevicesList.SelectedItem = null;
 #endif
         }
 
 
 
 
-
-
 #if ANDROID
+        //Подключиться к Bluetooth-устройству по его адресу
+        //с использованием классического RFCOMM-сокета (например, модуль HC-06).
+        //🔹 Принимает DeviceInfo — модель данных с Name и Address (MAC-адресом).
 
         private async Task<bool> ConnectToDeviceAsync(DeviceInfo deviceInfo)
         {
             try
             {
+                //🔹 Показывает всплывающее сообщение пользователю, информируя о начале подключения.
                 await DisplayAlert("Ожидайте подключения", $"{deviceInfo.Name} [{deviceInfo.Address}]", "OK");
-
+               
+                // 🔹 Получает объект BluetoothDevice по MAC-адресу.
+                // 🔹 Этот объект нужен для создания сокета и установления соединения.
                 var device = _adapter.GetRemoteDevice(deviceInfo.Address);
+                // 🔹 Отменяет текущее сканирование Bluetooth-устройств, если оно активно.
+                // 🔹 Это нужно, чтобы избежать конфликтов при подключении к устройству.
                 _adapter.CancelDiscovery();
 
-                socket_global = device.CreateRfcommSocketToServiceRecord(
-                    Java.Util.UUID.FromString("00001101-0000-1000-8000-00805F9B34FB"));
+                //🔹 Создаёт RFCOMM-сокет для связи с устройством.
+               // 🔹 UUID "00001101-0000-1000-8000-00805F9B34FB" — это стандартный UUID для профиля Serial Port Profile (SPP),
+               //поддерживаемый многими Bluetooth-модулями, включая HC-05/HC-06.
+                socket_global = device.CreateRfcommSocketToServiceRecord(Java.Util.UUID.FromString("00001101-0000-1000-8000-00805F9B34FB"));
 
-                await Task.Run(() => socket_global.Connect());
+                ///////////////////////////////////////////////////////////////////////   
+                //🔹 Подключается к устройству — важно запускать Connect() в фоновом потоке, чтобы не заблокировать UI.
+                //🔹 Если соединение не удастся — будет выброшено исключение.
+                Action action_socket = delegate(){
+              
+               socket_global.Connect();
+              
+              };
+              await Task.Run(action_socket);
+               //await Task.Run(() => socket_global.Connect()); // можно и так
+              ///////////////////////////////////////////////////////////////////////
+              
+
+             // 🔹 Если соединение успешно — помечаем устройство как подключенное.
+             // 🔹 IsConnected = true можно использовать для изменения внешнего вида, отключения повторного подключения и т.д.
 
                 if (socket_global.IsConnected)
                 {
                     deviceInfo.IsConnected = true; // 🔵 ОБЯЗАТЕЛЬНО!
-                    return true;
+                    return true; 
                 }
 
-                return false;
+                return false;// 🔹 Возвращаем false, если по какой-то причине соединение не установлено (без исключения).
+
+
             }
+
+            //🔹 Обработка ошибок подключения — например, если устройство вне зоны досягаемости,
+            //уже подключено к другому устройству, или сокет не может открыться.
             catch (Exception ex)
             {
                 await DisplayAlert("Ошибка подключения", $"Ошибка: {ex.Message}", "OK");
                 return false;
             }
         }
-
-
-
-
-
-
-
-
-
-        /// ///////////
 
 
 
@@ -446,7 +696,17 @@ namespace DronApp1
             //Метод OnReceive — ядро приёма событий Bluetooth-сканирования.
             // Он мост между Android-системой и твоим пользовательским интерфейсом.Всё, что тебе нужно от найденного устройства
             //— здесь обрабатывается: извлечение, проверка, обёртка в DeviceInfo и передача дальше.
-
+                //Android (находит устройство)
+                //      ↓
+                //OnReceive (в DeviceReceiver)
+                //      ↓
+                //_onDeviceFound?.Invoke(deviceInfo) — вызывает делегат
+                //      ↓
+                //_action(deviceInfo) — метод, переданный из MainPage
+                //      ↓
+                //_devices.Add(deviceInfo) — обновляет список
+                //      ↓
+                //UI обновляется
 
 
 
@@ -516,61 +776,108 @@ namespace DronApp1
         //}
 
 
+        //public class DeviceInfo : INotifyPropertyChanged
+        //{
+
+        //    public string Name { get; set; }
+        //    public string Address { get; set; }
+
+        //    // Автоматическое отображение имени и адреса
+        //    public string DisplayName => $"{Name ?? "Неизвестное устройство"} ({Address})";
+
+        //    private bool _isConnected;
+
+        //    // Флаг подключения
+        //    public bool IsConnected
+        //    {
+        //        get => _isConnected;
+        //        set
+        //        {
+        //            if (_isConnected != value)
+        //            {
+        //                _isConnected = value;
+        //                OnPropertyChanged(nameof(IsConnected));
+        //                OnPropertyChanged(nameof(DisplayStatus));
+        //            }
+        //        }
+        //    }
+
+        //    // Для визуального отображения статуса
+        //    public string DisplayStatus => IsConnected ? "🔵 Подключено" : "⚪ Не подключено";
+
+        //    public override string ToString()
+        //    {
+        //        return $"{Name ?? "Неизвестное устройство"} [{Address}]";
+        //    }
+
+        //    public override bool Equals(object obj)
+        //    {
+        //        return obj is DeviceInfo other && Address == other.Address;
+        //    }
+
+        //    public override int GetHashCode()
+        //    {
+        //        return Address?.GetHashCode() ?? 0;
+        //    }
+
+        //    // Поддержка обновлений UI при изменении свойств
+        //    public event PropertyChangedEventHandler PropertyChanged;
+
+        //    protected virtual void OnPropertyChanged(string propertyName)
+        //    {
+        //        var handler = PropertyChanged;
+        //        handler?.Invoke(this, new PropertyChangedEventArgs(propertyName));
+        //    }
+        //}
+
+
         public class DeviceInfo : INotifyPropertyChanged
-        {
-            public string Name { get; set; }
-            public string Address { get; set; }
-
-            // Автоматическое отображение имени и адреса
-            public string DisplayName => $"{Name ?? "Неизвестное устройство"} ({Address})";
-
-            private bool _isConnected;
-
-            // Флаг подключения
-            public bool IsConnected
             {
-                get => _isConnected;
-                set
+                public string Name { get; set; }
+                public string Address { get; set; }
+
+                public string DisplayName => $"{Name ?? "Неизвестное устройство"} ({Address})";
+
+                private bool _isConnected;
+                public bool IsConnected
                 {
-                    if (_isConnected != value)
+                    get => _isConnected;
+                    set
                     {
-                        _isConnected = value;
-                        OnPropertyChanged(nameof(IsConnected));
-                        OnPropertyChanged(nameof(DisplayStatus));
+                        if (_isConnected != value)
+                        {
+                            _isConnected = value;
+                            OnPropertyChanged(nameof(IsConnected));
+                            OnPropertyChanged(nameof(DisplayStatus));
+                        }
                     }
                 }
+
+                // ✅ ДОБАВЛЕНО: Флаг выделения
+                private bool _isSelected;
+                public bool IsSelected
+                {
+                    get => _isSelected;
+                    set
+                    {
+                        if (_isSelected != value)
+                        {
+                            _isSelected = value;
+                            OnPropertyChanged(nameof(IsSelected));
+                        }
+                    }
+                }
+               public string DisplayStatus => IsConnected ? "🟢 Подключено" : "🔴 Не подключено";
+              //  public string DisplayStatus => IsConnected ? "🔵 Подключено" : "⚪ Не подключено";
+
+                public override string ToString() => $"{Name ?? "Неизвестное устройство"} [{Address}]";
+                public override bool Equals(object obj) => obj is DeviceInfo other && Address == other.Address;
+                public override int GetHashCode() => Address?.GetHashCode() ?? 0;
+
+                public event PropertyChangedEventHandler PropertyChanged;
+                protected virtual void OnPropertyChanged(string propertyName)
+                    => PropertyChanged?.Invoke(this, new PropertyChangedEventArgs(propertyName));
             }
-
-            // Для визуального отображения статуса
-            public string DisplayStatus => IsConnected ? "🔵 Подключено" : "⚪ Не подключено";
-
-            public override string ToString()
-            {
-                return $"{Name ?? "Неизвестное устройство"} [{Address}]";
-            }
-
-            public override bool Equals(object obj)
-            {
-                return obj is DeviceInfo other && Address == other.Address;
-            }
-
-            public override int GetHashCode()
-            {
-                return Address?.GetHashCode() ?? 0;
-            }
-
-            // Поддержка обновлений UI при изменении свойств
-            public event PropertyChangedEventHandler PropertyChanged;
-
-            protected virtual void OnPropertyChanged(string propertyName)
-            {
-                var handler = PropertyChanged;
-                handler?.Invoke(this, new PropertyChangedEventArgs(propertyName));
-            }
-        }
-
-
-
 
 
 
@@ -583,82 +890,187 @@ namespace DronApp1
 #endif
 
 
-//        public async void ReceiverData(object sender, EventArgs e)//Bluetooth connect
-//        {
+        //        public async void ReceiverData(object sender, EventArgs e)//Bluetooth connect
+        //        {
 
-//            Stream? _inputStream = null; // Initialize the variable to avoid CS0165
-//            byte[] buffer = new byte[2048];
-//#if ANDROID
+        //            Stream? _inputStream = null; // Initialize the variable to avoid CS0165
+        //            byte[] buffer = new byte[2048];
+        //#if ANDROID
 
-//                    try
-//                    {
-//                        _inputStream = socket_global.InputStream;
-//                        // Use the input stream to read data from the Bluetooth device
-//                        // For example, you can read data like this:
-//                        while (true)
-//                        {
-//                            await Task.Delay(200);
-                              
-//                            int bytesRead = await _inputStream.ReadAsync(buffer, 0, buffer.Length);
-//                            receivedData2 = System.Text.Encoding.ASCII.GetString(buffer, 0, bytesRead);
-//                            label4.Text = $"data hc-06:{Environment.NewLine}{receivedData2}";
-//                            SemanticScreenReader.Announce(label4.Text);
-//                            receivedData2 = null;
-//                        }
-//                    }
-//                    catch (Exception ex)
-//                    {
-//                        await DisplayAlert("Error", $"Failed to connect: {ex.Message}", "OK");
-//                        return;
-//                    }
+        //                    try
+        //                    {
+        //                        _inputStream = socket_global.InputStream;
+        //                        // Use the input stream to read data from the Bluetooth device
+        //                        // For example, you can read data like this:
+        //                        while (true)
+        //                        {
+        //                            await Task.Delay(200);
 
-//#endif
+        //                            int bytesRead = await _inputStream.ReadAsync(buffer, 0, buffer.Length);
+        //                            receivedData2 = System.Text.Encoding.ASCII.GetString(buffer, 0, bytesRead);
+        //                            label4.Text = $"data hc-06:{Environment.NewLine}{receivedData2}";
+        //                            SemanticScreenReader.Announce(label4.Text);
+        //                            receivedData2 = null;
+        //                        }
+        //                    }
+        //                    catch (Exception ex)
+        //                    {
+        //                        await DisplayAlert("Error", $"Failed to connect: {ex.Message}", "OK");
+        //                        return;
+        //                    }
 
-//        }
+        //#endif
+
+        //        }
+
+        //        public async void ReceiverData(object sender, EventArgs e) // Bluetooth connect
+        //        {
+        //            Stream? _inputStream = null;
+        //            byte[] buffer = new byte[4096];
+        //            StringBuilder dataBuffer = new StringBuilder(); // 🔄 буфер для накопления текста
+
+        //#if ANDROID
+        //            try
+        //            {
+        //                _inputStream = socket_global.InputStream;
+
+        //                while (true)
+        //                {
+        //                    await Task.Delay(100); // ⏱ Пауза между попытками чтения (можно уменьшить до 50–100)
+
+        //                    if (_inputStream.CanRead)
+        //                    {
+        //                        int bytesRead = await _inputStream.ReadAsync(buffer, 0, buffer.Length);
+        //                        if (bytesRead > 0)
+        //                        {
+        //                            string part = System.Text.Encoding.ASCII.GetString(buffer, 0, bytesRead);
+        //                            dataBuffer.Append(part); // 📥 Накопление части данных
+
+        //                            // Проверка на завершение строки
+        //                            if (part.Contains("\n"))
+        //                            {
+        //                                string completeMessage = dataBuffer.ToString().Trim(); // 🧹 Удаляем лишние пробелы и переносы
+        //                                label4.Text = $"data hc-06:{Environment.NewLine}{completeMessage}";
+        //                                SemanticScreenReader.Announce(label4.Text);
+        //                                dataBuffer.Clear(); // 🧼 Очищаем буфер для следующего сообщения
+        //                            }
+        //                        }
+        //                    }
+        //                }
+        //            }
+        //            catch (Exception ex)
+        //            {
+        //                await DisplayAlert("Ошибка", $"Не удалось получить данные: {ex.Message}", "OK");
+        //            }
+        //#endif
+        //        }
+
+        //        public async void ReceiverData(object sender, EventArgs e)
+        //        {
+        //            Stream? _inputStream = null;
+        //            byte[] buffer = new byte[4096];
+        //            StringBuilder dataBuffer = new StringBuilder();
+        //            List<string> lines = new List<string>(); // 🔄 Список строк
+        //            const int maxLines = 100; // ✅ Максимум 100 строк в Label
+
+        //#if ANDROID
+        //    try
+        //    {
+        //        _inputStream = socket_global.InputStream;
+
+        //        while (true)
+        //        {
+        //            await Task.Delay(100);
+
+        //            if (_inputStream.CanRead)
+        //            {
+        //                int bytesRead = await _inputStream.ReadAsync(buffer, 0, buffer.Length);
+        //                if (bytesRead > 0)
+        //                {
+        //                    string part = System.Text.Encoding.ASCII.GetString(buffer, 0, bytesRead);
+        //                    dataBuffer.Append(part);
+
+        //                    if (part.Contains("\n"))
+        //                    {
+        //                        string completeMessage = dataBuffer.ToString().Trim();
+        //                        lines.Add(completeMessage); // ➕ Добавляем строку
+
+        //                        if (lines.Count > maxLines)
+        //                        {
+        //                            lines.RemoveAt(0); // ➖ Удаляем старейшую строку
+        //                        }
+
+        //                        // 📝 Обновляем текст Label
+        //                        label4.Text = string.Join(Environment.NewLine, lines);
+
+        //                        // 🔽 Автопрокрутка
+        //                        await Task.Delay(50);
+        //                        await scrollView.ScrollToAsync(label4, ScrollToPosition.End, true);
+
+        //                        dataBuffer.Clear();
+        //                    }
+        //                }
+        //            }
+        //        }
+        //    }
+        //    catch (Exception ex)
+        //    {
+        //        await DisplayAlert("Ошибка", $"Не удалось получить данные: {ex.Message}", "OK");
+        //    }
+        //#endif
+        //        }
+
 
         public async void ReceiverData(object sender, EventArgs e) // Bluetooth connect
         {
             Stream? _inputStream = null;
-            byte[] buffer = new byte[2048];
+            byte[] buffer = new byte[4096];
             StringBuilder dataBuffer = new StringBuilder(); // 🔄 буфер для накопления текста
 
 #if ANDROID
-            try
+    try
+    {
+        _inputStream = socket_global.InputStream;
+
+        while (true)
+        {
+            await Task.Delay(100); // ⏱ Пауза между попытками чтения (можно уменьшить до 50–100)
+
+            if (_inputStream.CanRead)
             {
-                _inputStream = socket_global.InputStream;
-
-                while (true)
+                int bytesRead = await _inputStream.ReadAsync(buffer, 0, buffer.Length);
+                if (bytesRead > 0)
                 {
-                    await Task.Delay(100); // ⏱ Пауза между попытками чтения (можно уменьшить до 50–100)
+                    string part = System.Text.Encoding.ASCII.GetString(buffer, 0, bytesRead);
+                    dataBuffer.Append(part); // 📥 Накопление части данных
 
-                    if (_inputStream.CanRead)
+                    // Проверка на завершение строки
+                    if (part.Contains("\n"))
                     {
-                        int bytesRead = await _inputStream.ReadAsync(buffer, 0, buffer.Length);
-                        if (bytesRead > 0)
-                        {
-                            string part = System.Text.Encoding.ASCII.GetString(buffer, 0, bytesRead);
-                            dataBuffer.Append(part); // 📥 Накопление части данных
+                        string completeMessage = dataBuffer.ToString().Trim(); // 🧹 Удаляем лишние пробелы и переносы
 
-                            // Проверка на завершение строки
-                            if (part.Contains("\n"))
-                            {
-                                string completeMessage = dataBuffer.ToString().Trim(); // 🧹 Удаляем лишние пробелы и переносы
-                                label4.Text = $"data hc-06:{Environment.NewLine}{completeMessage}";
-                                SemanticScreenReader.Announce(label4.Text);
-                                dataBuffer.Clear(); // 🧼 Очищаем буфер для следующего сообщения
-                            }
-                        }
+                        // Обновление текста в label
+                        label4.Text += $"{Environment.NewLine}{completeMessage}";
+
+                        // Прокрутка ScrollView
+                        await MainThread.InvokeOnMainThreadAsync(async () =>
+                        {
+                            await scrollView.ScrollToAsync(label4, ScrollToPosition.End, true);
+                        });
+
+                        SemanticScreenReader.Announce(label4.Text);
+                        dataBuffer.Clear(); // 🧼 Очищаем буфер для следующего сообщения
                     }
                 }
             }
-            catch (Exception ex)
-            {
-                await DisplayAlert("Ошибка", $"Не удалось получить данные: {ex.Message}", "OK");
-            }
+        }
+    }
+    catch (Exception ex)
+    {
+        await DisplayAlert("Ошибка", $"Не удалось получить данные: {ex.Message}", "OK");
+    }
 #endif
         }
-
-
 
         private async void TransmitterData(object sender, EventArgs e)
         {
@@ -755,7 +1167,11 @@ namespace DronApp1
 
 
 
-
+        // Метод для очистки текста
+        private void ClearData(object sender, EventArgs e)
+        {
+            label4.Text = "";  // Очистить текст в label
+        }
 
 
 
@@ -778,7 +1194,7 @@ namespace DronApp1
 
 
 
-
+ //< Border Stroke = "MidnightBlue"
 
 
 
