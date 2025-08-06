@@ -1,9 +1,11 @@
 ﻿
 Microsoft Visual Studio Solution File, Format Version 12.00
 # Visual Studio Version 17
-VisualStudioVersion = 17.13.35931.197 d17.13
+VisualStudioVersion = 17.13.35931.197
 MinimumVisualStudioVersion = 10.0.40219.1
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "DronApp1", "DronApp1.csproj", "{ACE5E268-2433-44F6-8E28-23CA4F2C0714}"
+EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Bluetooth_skb2", "..\Bluetooth_skb2\Bluetooth_skb2.csproj", "{D4999A8D-0E7E-4B88-B320-4630A759D7A2}"
 EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
@@ -13,8 +15,14 @@ Global
 	GlobalSection(ProjectConfigurationPlatforms) = postSolution
 		{ACE5E268-2433-44F6-8E28-23CA4F2C0714}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
 		{ACE5E268-2433-44F6-8E28-23CA4F2C0714}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{ACE5E268-2433-44F6-8E28-23CA4F2C0714}.Debug|Any CPU.Deploy.0 = Debug|Any CPU
 		{ACE5E268-2433-44F6-8E28-23CA4F2C0714}.Release|Any CPU.ActiveCfg = Release|Any CPU
 		{ACE5E268-2433-44F6-8E28-23CA4F2C0714}.Release|Any CPU.Build.0 = Release|Any CPU
+		{D4999A8D-0E7E-4B88-B320-4630A759D7A2}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{D4999A8D-0E7E-4B88-B320-4630A759D7A2}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{D4999A8D-0E7E-4B88-B320-4630A759D7A2}.Debug|Any CPU.Deploy.0 = Debug|Any CPU
+		{D4999A8D-0E7E-4B88-B320-4630A759D7A2}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{D4999A8D-0E7E-4B88-B320-4630A759D7A2}.Release|Any CPU.Build.0 = Release|Any CPU
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE

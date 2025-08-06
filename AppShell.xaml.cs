@@ -13,7 +13,7 @@
 
 
 
-            await DisplayAlert("Меню", "Нет разрешений для работы с Bluetooth", "OK");
+            await DisplayAlert("Меню", "Работа с Bluetooth", "OK");
             //await Shell.Current.GoToAsync($"//{nameof(LoginPage)}");
             //  await Shell.Current.GoToAsync("//LoginPage");
         }   

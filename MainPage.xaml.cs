@@ -53,16 +53,28 @@ namespace DronApp1
 
         public string receivedData2 = null;
 
+        //Это свойство интерфейса ICommand, которое будет связано с интерфейсом XAML.
+        //Используется для обработки нажатий на устройства в списке(например, CollectionView.ItemTemplate → TappedCommand).
+        //Позволяет привязать команду напрямую в XAML:
         public ICommand DeviceTappedCommand { get; }
 
         public MainPage()
         {
             InitializeComponent(); // Инициализация всех компонентов страницы, созданных в XAML
-
+                                   //   DeviceTappedCommand = new Command<DeviceInfo>(async (device) => await OnDeviceTapped(device));
 
 #if ANDROID
 
-          DeviceTappedCommand = new Command<DeviceInfo>(async (device) => await OnDeviceTapped(device));
+            //  DeviceTappedCommand = new Command<DeviceInfo>(async (device) => await OnDeviceTapped(device));
+            //📌 Что происходит:
+            //Ты создаёшь команду (Command<T>), которая будет вызываться при нажатии на элемент списка (например, устройство Bluetooth).
+            
+            //DeviceTappedCommand — команда, которая срабатывает при нажатии на элемент CollectionView.
+            //Здесь создаётся команда с параметром типа DeviceInfo.
+            //Используется анонимный метод (delegate(DeviceInfo device)), который асинхронно вызывает метод OnDeviceTapped(device).
+            //Это позволяет передавать информацию о нажатом устройстве из UI в обработчик.
+          DeviceTappedCommand = new Command<DeviceInfo>(async delegate(DeviceInfo device){ await  OnDeviceTapped(device);});
+          //связывает XAML-интерфейс с текущим классом (например, MainPage), чтобы иметь доступ к свойствам и командам напрямую из XAML.
           BindingContext = this;
 
 
@@ -101,8 +113,7 @@ namespace DronApp1
             _receiver = new DeviceReceiver(_action);
 
             /////////////////////////////
-            /////Создаёт приёмник, которому передаётся  делегат _action, и который будет вызываться каждый раз,
-            // когда Android обнаруживает новое Bluetooth - устройство.
+           
             // Регистрируем наш приемник на события нахождения новых Bluetooth устройств - "по сути это регистрация на событие".
             // (BluetoothDevice.ActionFound) и передаём ему делегат, который будет вызван при нахождении устройства
             // (в данном случае это анонимный метод, который добавляет устройство в список _devices)
@@ -144,10 +155,21 @@ namespace DronApp1
         //            }
 
         //}
+#endif
 
+
+        //Это метод, к которому привязана команда DeviceTappedCommand.
+        //Он выполняет несколько важных шагов:
+#if ANDROID
+
+        
         private async Task OnDeviceTapped(DeviceInfo tappedDevice)
-{
+        {
     // Сброс всех выделений
+     //Пробегает по всему списку _devices и сбрасывает флаг выделения (IsSelected = false) у всех устройств.
+     //Это нужно для визуального снятия подсветки при выборе другого элемента.
+
+
     foreach (var device in _devices)
         device.IsSelected = false;
 
@@ -180,12 +202,12 @@ namespace DronApp1
     }
 }
 
-
-
-
-
-
 #endif
+
+
+
+
+
 
 
 
@@ -251,7 +273,7 @@ namespace DronApp1
 
         private async void OnScanClicked(object sender, EventArgs e)
         {
-            #if ANDROID
+#if ANDROID
                 if (!await CheckPermissions())
                 {
                     await DisplayAlert("Ошибка", "Нет разрешений для работы с Bluetooth", "OK");
@@ -289,7 +311,7 @@ namespace DronApp1
                 {
                     _devices.Add(savedConnectedDevice);
                 }
-            #endif
+#endif
         }
 
 
@@ -320,6 +342,42 @@ namespace DronApp1
 
 
 
+
+
+
+#if ANDROID
+        private async Task DisconnectFromDeviceAsync(DeviceInfo device)
+        {
+
+
+            try
+            {
+                if (socket_global != null && socket_global.IsConnected)
+                {
+                    await Task.Run(() =>
+                    {
+                        socket_global.Close();  // Закрываем соединение
+                    });
+
+                    await DisplayAlert("Отключение", $"Отключено от {device.Name} [{device.Address}].", "OK");
+                    socket_global = null;  // Очистка глобального сокета после отключения
+                    device.IsConnected = false; // 🔄 ОБЯЗАТЕЛЬНО обновляем статус в модели
+                }
+                else
+                {
+                    await DisplayAlert("Ошибка", "Не удалось найти активное подключение.", "OK");
+                     DevicesList.SelectedItem = null;
+                  //   _selectedDevice = null; // Обнуляем переменную выбранного устройства   
+
+                }
+            }
+            catch (Exception ex)
+            {
+                await DisplayAlert("Ошибка", $"Ошибка отключения: {ex.Message}", "OK");
+            }
+
+        }
+#endif
 
 
 
@@ -358,84 +416,48 @@ namespace DronApp1
 
         //#endif
         //        }
-#if ANDROID
-        private async Task DisconnectFromDeviceAsync(DeviceInfo device)
-        {
 
 
-            try
-            {
-                if (socket_global != null && socket_global.IsConnected)
-                {
-                    await Task.Run(() =>
-                    {
-                        socket_global.Close();  // Закрываем соединение
-                    });
+        //        private async void OnDeviceSelected(object sender, SelectionChangedEventArgs e)
+        //        {
+        //#if ANDROID
+        //                    var selectedDevice = e.CurrentSelection.FirstOrDefault() as DeviceInfo;
+        //                    if (selectedDevice == null)
+        //                    { 
 
-                    await DisplayAlert("Отключение", $"Отключено от {device.Name} [{device.Address}].", "OK");
-                    socket_global = null;  // Очистка глобального сокета после отключения
-                    device.IsConnected = false; // 🔄 ОБЯЗАТЕЛЬНО обновляем статус в модели
-                }
-                else
-                {
-                    await DisplayAlert("Ошибка", "Не удалось найти активное подключение.", "OK");
-                     DevicesList.SelectedItem = null;
-                  //   _selectedDevice = null; // Обнуляем переменную выбранного устройства   
-
-                }
-            }
-            catch (Exception ex)
-            {
-                await DisplayAlert("Ошибка", $"Ошибка отключения: {ex.Message}", "OK");
-            }
-
-        }
-#endif
+        //                     DevicesList.SelectedItem = null;
+        //                     return;
+        //                    }
 
 
+        //                    if (_selectedDevice != null && selectedDevice.Address == _selectedDevice.Address)
+        //                    {
+        //                        // Повторный клик по уже выбранному устройству — отключение
 
+        //                        await DisconnectFromDeviceAsync(_selectedDevice);
+        //                        DevicesList.SelectedItem = null;
+        //                        _selectedDevice = null;
+        //                    }
+        //                    else
+        //                    {
+        //                        // Новый выбор — подключение
+        //                        _selectedDevice = selectedDevice;
 
+        //                        bool connected = await ConnectToDeviceAsync(_selectedDevice);
+        //                        if (connected)
+        //                            await DisplayAlert("Успех", $"Подключено к {_selectedDevice.Name}", "OK");
 
-//        private async void OnDeviceSelected(object sender, SelectionChangedEventArgs e)
-//        {
-//#if ANDROID
-//                    var selectedDevice = e.CurrentSelection.FirstOrDefault() as DeviceInfo;
-//                    if (selectedDevice == null)
-//                    { 
-    
-//                     DevicesList.SelectedItem = null;
-//                     return;
-//                    }
-       
+        //                        else{ await DisplayAlert("Ошибка", $"Не удалось подключиться к {_selectedDevice.Name}", "OK");
+        //                         DevicesList.SelectedItem = null;
+        //                          _selectedDevice = null;
+        //                        }
 
-//                    if (_selectedDevice != null && selectedDevice.Address == _selectedDevice.Address)
-//                    {
-//                        // Повторный клик по уже выбранному устройству — отключение
-                        
-//                        await DisconnectFromDeviceAsync(_selectedDevice);
-//                        DevicesList.SelectedItem = null;
-//                        _selectedDevice = null;
-//                    }
-//                    else
-//                    {
-//                        // Новый выбор — подключение
-//                        _selectedDevice = selectedDevice;
+        //                    }
 
-//                        bool connected = await ConnectToDeviceAsync(_selectedDevice);
-//                        if (connected)
-//                            await DisplayAlert("Успех", $"Подключено к {_selectedDevice.Name}", "OK");
-
-//                        else{ await DisplayAlert("Ошибка", $"Не удалось подключиться к {_selectedDevice.Name}", "OK");
-//                         DevicesList.SelectedItem = null;
-//                          _selectedDevice = null;
-//                        }
-                           
-//                    }
-
-//                    // 🔁 Сброс выбора, чтобы SelectionChanged снова срабатывал
-//                    DevicesList.SelectedItem = null;
-//#endif
-//        }
+        //                    // 🔁 Сброс выбора, чтобы SelectionChanged снова срабатывал
+        //                    DevicesList.SelectedItem = null;
+        //#endif
+        //        }
 
 
         //private async void OnDeviceSelected(object sender, SelectionChangedEventArgs e)
@@ -480,53 +502,53 @@ namespace DronApp1
         //    #endif
         //}
 
-//        private async void OnDeviceSelected(object sender, SelectionChangedEventArgs e)
-//        {
-//#if ANDROID
-//    var selectedDevice = e.CurrentSelection.FirstOrDefault() as DeviceInfo;
+        //        private async void OnDeviceSelected(object sender, SelectionChangedEventArgs e)
+        //        {
+        //#if ANDROID
+        //    var selectedDevice = e.CurrentSelection.FirstOrDefault() as DeviceInfo;
 
-//    if (selectedDevice == null)
-//    {
-//        DevicesList.SelectedItem = null;
-//        return;
-//    }
+        //    if (selectedDevice == null)
+        //    {
+        //        DevicesList.SelectedItem = null;
+        //        return;
+        //    }
 
-//    // Сброс предыдущего выбора
-//    foreach (var device in _devices)
-//        device.IsSelected = false;
+        //    // Сброс предыдущего выбора
+        //    foreach (var device in _devices)
+        //        device.IsSelected = false;
 
-//    if (_selectedDevice != null && selectedDevice.Address == _selectedDevice.Address)
-//    {
-//        await DisconnectFromDeviceAsync(_selectedDevice);
-//        _selectedDevice.IsSelected = false;
-//        _selectedDevice = null;
-//        DevicesList.SelectedItem = null;
-//        return;
-//    }
+        //    if (_selectedDevice != null && selectedDevice.Address == _selectedDevice.Address)
+        //    {
+        //        await DisconnectFromDeviceAsync(_selectedDevice);
+        //        _selectedDevice.IsSelected = false;
+        //        _selectedDevice = null;
+        //        DevicesList.SelectedItem = null;
+        //        return;
+        //    }
 
-//    _selectedDevice = selectedDevice;
-//    bool connected = await ConnectToDeviceAsync(_selectedDevice);
+        //    _selectedDevice = selectedDevice;
+        //    bool connected = await ConnectToDeviceAsync(_selectedDevice);
 
-//    if (connected)
-//    {
-//        _selectedDevice.IsSelected = true;
+        //    if (connected)
+        //    {
+        //        _selectedDevice.IsSelected = true;
 
-//        // ✅ Удаляем все остальные устройства из списка, оставляя только подключённое
-//        var connectedDevice = _selectedDevice;
-//        _devices.Clear();
-//        _devices.Add(connectedDevice);
+        //        // ✅ Удаляем все остальные устройства из списка, оставляя только подключённое
+        //        var connectedDevice = _selectedDevice;
+        //        _devices.Clear();
+        //        _devices.Add(connectedDevice);
 
-//        await DisplayAlert("Успех", $"Подключено к {_selectedDevice.Name}", "OK");
-//    }
-//    else
-//    {
-//        await DisplayAlert("Ошибка", $"Не удалось подключиться к {_selectedDevice.Name}", "OK");
-//        _selectedDevice = null;
-//    }
+        //        await DisplayAlert("Успех", $"Подключено к {_selectedDevice.Name}", "OK");
+        //    }
+        //    else
+        //    {
+        //        await DisplayAlert("Ошибка", $"Не удалось подключиться к {_selectedDevice.Name}", "OK");
+        //        _selectedDevice = null;
+        //    }
 
-//    DevicesList.SelectedItem = null;
-//#endif
-//        }
+        //    DevicesList.SelectedItem = null;
+        //#endif
+        //        }
 
 
 

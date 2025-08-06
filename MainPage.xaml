@@ -1,15 +1,16 @@
 ﻿<ContentPage xmlns="http://schemas.microsoft.com/dotnet/2021/maui"  
             xmlns:x="http://schemas.microsoft.com/winfx/2009/xaml"  
-            x:Class="DronApp1.MainPage">  
+            x:Class="DronApp1.MainPage">
 
-   <VerticalStackLayout Padding="25" BackgroundColor="DimGrey">
+    <ScrollView>
+        <VerticalStackLayout Padding="25" BackgroundColor="DimGrey">
 
        
 
             <!-- ✅ Горизонтальное размещение двух кнопок -->
         <!-- Использование Grid для горизонтального размещения кнопок -->
         <Grid Margin="5" ColumnDefinitions="*,*" ColumnSpacing="10">
-            <Button Text="ON_OFF to Bluetooth"
+            <Button Text="Bluetooth"
                     x:Name="Counter5"
                     TextColor="BlanchedAlmond"
                     BackgroundColor="Blue"
@@ -117,16 +118,17 @@
             </CollectionView.ItemTemplate>
         </CollectionView>-->
 
-
-        <CollectionView x:Name="DevicesList"
-                SelectionMode="None">
+            <!-- Обёртка с фиксированной высотой и вертикальной прокруткой -->
+            <ScrollView Orientation="Vertical" HeightRequest="80">
+                <CollectionView x:Name="DevicesList"
+                SelectionMode="None" >
             <CollectionView.ItemTemplate>
                 <DataTemplate>
                     <Border Stroke="DarkRed"
                     StrokeShape="RoundRectangle 10"
                     Margin="5"
                     Padding="5"
-                    StrokeThickness="2">
+                    StrokeThickness="2"   >
                         <Border.GestureRecognizers>
                             <TapGestureRecognizer Command="{Binding Source={x:Reference DevicesList}, Path=BindingContext.DeviceTappedCommand}" 
                                           CommandParameter="{Binding .}" />
@@ -139,11 +141,12 @@
                             </DataTrigger>
                         </Border.Triggers>
 
-                        <VerticalStackLayout>
-                            <Label FontSize="20" TextColor="Black" Text="{Binding DisplayName}" />
+                      
+                                <VerticalStackLayout>
+                            <Label FontSize="14" TextColor="Black" Text="{Binding DisplayName}" />
 
                             <!-- ✅ Обновлённый Label со стилем и триггерами -->
-                            <Label FontSize="16"
+                            <Label FontSize="14"
                            FontAttributes="Bold"
                            Text="{Binding DisplayStatus}">
                                 <Label.Triggers>
@@ -156,14 +159,17 @@
                                 </Label.Triggers>
                             </Label>
                         </VerticalStackLayout>
-                    </Border>
+                     
+                        </Border>
                 </DataTemplate>
             </CollectionView.ItemTemplate>
         </CollectionView>
 
+            </ScrollView>
 
 
-        <!--<CollectionView x:Name="DevicesList"  
+
+            <!--<CollectionView x:Name="DevicesList"  
                        SelectionChanged="OnDeviceSelected"  
                        SelectionMode="Single">  
            <CollectionView.ItemTemplate>  
@@ -362,14 +368,14 @@
         StrokeThickness="1" 
         Padding="10" 
        
-        Margin="5">
-            <Entry x:Name="entry1"
-           Placeholder="Enter text to transfer data"
-           PlaceholderColor="BlanchedAlmond"
-           FontSize="18"
-           TextColor="Black"
-           HorizontalOptions="Fill"
-           VerticalOptions="Center" />
+                Margin="5">
+                    <Entry x:Name="entry1"
+                   Placeholder="Enter text to transfer data"
+                   PlaceholderColor="BlanchedAlmond"
+                   FontSize="18"
+                   TextColor="Black"
+                   HorizontalOptions="Fill"
+                   VerticalOptions="Center" />
         </Border>
 
       
@@ -386,8 +392,8 @@
              />
         <Button Margin="5" Text="Connect to device"  x:Name="Counter3" TextColor="Red" BackgroundColor="#1B1919"  Clicked="Con--><!--nectToDevice"/>-->   
 
-    </VerticalStackLayout>  
-
+    </VerticalStackLayout>
+    </ScrollView>
 </ContentPage>
 
 
